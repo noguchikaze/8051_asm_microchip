@@ -1,0 +1,355 @@
+;FRAME ADD DPTR FOR THE SPECTRUM
+;Try with only one 8051
+;By using "INT1" to control the "COUNTER1" running
+;INT1 means trigger when the debounce button presssed
+;And both the LED and the buzzer runs by "T0"
+;TR0 => LED runs => trigger => INT1 => check
+ORG 00H
+JMP INIT
+;ORG 03H
+;JMP PLAYAGAIN
+ORG 0BH ;TIMER0中斷
+JMP SHIFTING
+ORG 13H ;INT1
+JMP TRIGGER
+ORG 50H
+JMP MAIN
+
+CNTS    EQU R7  ;To determine how many 0.05sec to run
+INDEXL  EQU R6  ;To move on the spectrum of LED
+SHIFTCNT  EQU R2
+ONPU    EQU R1  ;amount of onpu in the music
+SCORE   EQU R0  ;The score
+DISPLAY EQU P2  ;to show the judjment of the result
+KEY     EQU P1  ;keyboard
+LED     EQU P0  ;LEDS
+LAST    EQU P0.7  ;The last LED
+SCOREHUN  EQU 34H
+SCORETEN  EQU 35H
+SCOREONE  EQU 36H
+AGAIN   EQU  20H.1
+
+;Setting External interrupt 1 and TIMER0 interrupt
+INIT:
+  MOV IP,#00000000B  ;External interrupt Priority
+  MOV IE,#00000110B  ;ET0 EX1
+  ;EA WILL BE ENABLED AFTER THE selection
+  MOV TMOD,#00000001B ;TIMER0 ready for the shift
+                      ;MODE1
+  CLR TR0
+  SETB IT1  ;Ngative edge trigger
+  SETB IT0
+  CLR IE0
+  CLR IE1   ;Clear interrupt flag
+  CLR TF0   ;Clear timer interrupt flag
+  ;Setting the timer overflows every 0.01sec
+  MOV TH0,#0D8H
+  MOV TL0,#0F0H
+  MOV LED,#11111100B
+  MOV SCORE,#0
+  MOV INDEXL,#0
+  MOV SHIFTCNT,#8
+  SETB F0
+  CLR AGAIN
+MAIN:
+  CALL SHOWFIRST  ;SHOW 1 2 3 4 ON THE SCREEN
+SCAN:
+  ;SELECT THE SPEED OF THE GAME FROM THE KEYBOARD
+  MOV KEY,#01111111B
+  CALL  KDELAY
+  MOV A,KEY
+  ANL A,#00001111B
+  CJNE A,#1111B,SELECT
+  JB  F0,MAIN
+  CALL SHOWSECOND ;SHOW 3 4 5 7 ON THE SCREEN
+  JMP SCAN  ;KEEP SCANNING IF NOTHING IS presssed
+;-----------------BUTTON presssed-------------------
+SELECT:
+COL1:
+  CJNE A,#1110B,COL2
+  JNB F0,SPEED1  ;SELECT THE SPEED IF FLAG=0
+  ;NOW IS THE MODE OF SELECTING DIFFERENT MUSICS
+  CLR F0  ;Clear flag
+  MOV DISPLAY,#11100001B
+  MOV DPTR,#EASYMODE
+  MOV ONPU,#22
+  CALL LDELAY
+  JMP SCAN
+SPEED1:
+  MOV 30H,#3
+  MOV DISPLAY,#11100011B
+  CALL LDELAY
+  JMP START
+COL2:
+  CJNE A,#1101B,COL3
+  JNB F0,SPEED2  ;SELECT THE SPEED IF FLAG=0
+  ;NOW IS THE MODE OF SELECTING DIFFERENT MUSICS
+  CLR F0  ;Clear flag
+  MOV DISPLAY,#11010010B
+  MOV DPTR,#PRACTICE
+  MOV ONPU,#24
+  CALL LDELAY
+  JMP SCAN
+SPEED2:
+  MOV  30H,#4
+  MOV DISPLAY,#11010100B
+  CALL LDELAY
+  JMP  START
+COL3:
+  CJNE A,#1011B,COL4
+  JNB F0,SPEED3  ;SELECT THE SPEED IF FLAG=0
+  ;NOW IS THE MODE OF SELECTING DIFFERENT MUSICS
+  CLR F0  ;Clear flag
+  MOV DISPLAY,#10110011B
+  MOV DPTR,#BELIEF
+  MOV ONPU,#41
+  CALL LDELAY
+  JMP SCAN
+SPEED3:
+  MOV  30H,#5
+  MOV DISPLAY,#10110101B
+  CALL LDELAY
+  JMP  START
+COL4:
+  CJNE A,#0111B,SCAN
+  JNB F0,SPEED4  ;SELECT THE SPEED IF FLAG=0
+  ;NOW IS THE MODE OF SELECTING DIFFERENT MUSICS
+  CLR F0  ;Clear flag
+  MOV DISPLAY,#01110100B
+  MOV DPTR,#STAR
+;  MOV DPH4,DPH
+;  MOV DPL4,DPL
+  MOV ONPU,#39
+  CALL LDELAY
+  JMP SCAN
+SPEED4:
+  MOV  30H,#7
+  MOV DISPLAY,#01110111B
+  CALL LDELAY
+  JMP  START
+;=======GAME START===========
+START:
+  SETB EA
+  ;initialize the first CNTS
+  ;MOV DPTR,#XXX was alreadt implemented up in the selection
+  MOV A,INDEXL
+  MOVC A,@A+DPTR ;Take out the multiplying data
+  MOV B,A   ;move the multiplied number into B reg
+  MOV A,30H ;move the counting base tempo into A
+  MUL AB    ;with low order bytes in A so we catch a
+  MOV CNTS,A  ;and put the beat into CNTS
+  MOV 31H,A  ;and put the multiplied beat into 31H
+COUNTDOWN:
+  ;SHOW THE COUNTDOWN FROM 3
+  MOV   DISPLAY,#00000011B  ;3333
+  CALL  LDELAY
+  MOV   DISPLAY,#00000010B  ;2222
+  CALL  LDELAY
+  MOV   DISPLAY,#00000001B  ;1111
+  CALL  LDELAY
+  MOV   DISPLAY,#01110000B  ;XXX0
+  SETB  TR0 ;TIMER0 run
+MUSICRUN:
+  CJNE ONPU,#0,$
+  MOV IE,#10000001B
+
+SHOWSCORE:
+;這裡的CODE要用呼叫涵式掃描顯示
+;不然會沒法顯示十位數就到0000了
+  MOV B,#100
+  MOV A,SCORE ;A NUMBER UNDER 256
+  DIV AB
+  ADD A, #11010000B ;SHOW X N X X
+  MOV SCOREHUN,A
+  MOV A,B
+  MOV B,#10
+  MOV A,SCORE
+  DIV AB
+  ADD A,#10110000B  ;N*10
+  MOV SCORETEN,A     ;SHOW X X N X
+  MOV A,B
+  ADD A,#01110000B  ;N
+  MOV SCOREONE,A     ;SHOW X X X N
+
+CHECKPLAY:
+  JNB AGAIN,LOOP
+  JMP INIT  ;PLAY THE GAME AGAIN IF INT0 HAPPENED
+LOOP:
+  CALL SHOW
+  MOV R3,#0FFH
+  DJNZ R3,LOOP
+  CALL SPARCLE
+  CALL LDELAY
+  JMP CHECKPLAY
+;==========================================
+SHOW:
+  MOV DISPLAY,SCOREHUN
+  CALL  KDELAY
+  MOV DISPLAY,SCORETEN
+  CALL  KDELAY
+  MOV DISPLAY,SCOREONE
+  CALL  KDELAY
+  RET
+;========LET THE LIGHT SPARKLE===========
+SPARCLE:
+  MOV DISPLAY,#11110000B
+  CALL LDELAY
+  RET
+;=========External interrupt 0============
+PLAYAGAIN:
+  CLR IE0
+  SETB AGAIN
+  RETI
+;=========External interrupt 1============
+TRIGGER:
+  CLR IE1
+;using the first method by checking with the state
+;of the pin of last LED
+  JNB  LAST,ONTONE
+OFFTONE:  ;Is not tapped on the tempo
+  CALL BOOP
+  MOV DISPLAY,#01110000B  ;show 0 if BAD
+  RETI
+ONTONE: ;IS tapped on the tempo
+  CALL BEEP
+  MOV DISPLAY,#01110001B  ;show 0 if GOOD
+  INC SCORE ;++score
+  RETI
+;===========TIMER0 INT======================
+;============ manual overload ==============
+SHIFTING:
+  DJNZ CNTS,TORET
+  ;reload the counts
+  MOV CNTS,31H
+  MOV A,LED
+  RL  A
+  MOV LED,A
+  DJNZ SHIFTCNT,TORET
+  MOV SHIFTCNT,#8
+SHIFTACOUNT:
+  ;shift the count
+  ;running from INDEXL=1
+  INC INDEXL  ;++INDEXL
+  MOV A,INDEXL  ;add A with the index first
+  MOVC A,@A+DPTR  ;Take out the multiplying data
+  MOV  B,A  ;THROW THE DATA INTO B
+  MOV  A,30H
+  MUL AB
+  MOV 31H,A ;Throw the multiplied count into 31H
+  MOV CNTS,A
+  DEC ONPU
+TORET:  ;reload the TIMER0
+  MOV TH0,#0D8H
+  MOV TL0,#0F0H
+  RETI
+;============SHOW THE NUM===================
+SHOWFIRST:  ;1,2,3,4
+  MOV DISPLAY,#11100001B
+  CALL KDELAY
+  MOV DISPLAY,#11010010B
+  CALL KDELAY
+  MOV DISPLAY,#10110011B
+  CALL KDELAY
+  MOV DISPLAY,#01110100B
+  CALL KDELAY
+  RET
+
+SHOWSECOND: ;3,4,5,7
+  MOV DISPLAY,#11100011B
+  CALL KDELAY
+  MOV DISPLAY,#11010100B
+  CALL KDELAY
+  MOV DISPLAY,#10110101B
+  CALL KDELAY
+  MOV DISPLAY,#01110111B
+  CALL KDELAY
+  RET
+;=======BUZZER BEEP=====================
+BEEP:
+  MOV R3,#030H
+BBB:
+  SETB P3.0
+  CALL KDELAY
+  CLR  P3.0
+  CALL KDELAY
+  DJNZ R3,BBB
+  RET
+BOOP:
+  MOV R3,#020H
+BOO:
+  SETB P3.0
+  CALL BDELAY
+  CLR  P3.0
+  CALL BDELAY
+  DJNZ  R3,BOO
+  RET
+;========PUT THE TEMPO======================
+BELIEF: ;0-40
+;CHANGE THE NUMBER PUT INTO CNTS
+;SO THAT WE CAN CHANGE THE TEMPO BY MULTIPLYING IT
+  DB  2,1,1,1,2,3,1,2,2,1
+  DB  1,1,1,1,1,1,1,2,1,1,4
+  DB  2,1,1,1,2,3,1,2,1,1,1
+  DB  2,1,3,1,3,1,1,2,3
+
+STAR: ;0-38
+  DB  1,1,1,1,1,1,2
+  DB  1,1,1,1,1,1,2
+  DB  2,2,1,1,2
+  DB  1,1,2,1,1,2
+  DB  1,1,1,1,1,1,2
+  DB  1,1,1,1,1,1,2
+
+PRACTICE: ;0-23
+  DB 4,3,2,1,4,3,2,1
+  DB 2,2,1,1,3,2,3,1
+  DB 3,2,1,1,3,2,1,1
+
+EASYMODE: ;0-21
+  DB 2,2,2,2,2
+  DB 2,1,2,1,2,1,1,1
+  DB 3,2,1,3,2,1,3,2,1
+;===========================================
+TABLETONE:
+;DO
+;RE
+;MI
+;FA
+;SOL
+;LA
+;SI
+;HDO
+;===========================================
+;SHORT DELAY FOR KEYBOARD
+KDELAY:
+	MOV	R5,#1FH
+K:
+	MOV	R4,#1FH
+	DJNZ	R4,$
+	DJNZ	R5,K
+	RET
+BDELAY:
+	MOV	R5,#3FH
+K2:
+	MOV	R4,#1FH
+	DJNZ	R4,$
+	DJNZ	R5,K2
+	RET
+
+;LONG DELAY FOR COUNTDOWN
+LDELAY:
+  MOV R3,#015H ;12
+;  MOV R3,#0CH ;12
+L1:
+  MOV R5,#0FFH  ;213
+;  MOV R5,#0D5H  ;213
+L:
+  MOV R4,#0FFH  ;194
+;  MOV R4,#0C2H  ;194
+  DJNZ	R4,$
+  DJNZ	R5,L
+  DJNZ	R3,L1
+  RET
+;==========================================
+TOEND:
+END
