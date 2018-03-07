@@ -1,0 +1,76 @@
+;16x2 LCD測試程式
+
+LCD_RS		EQU	P1.0		;定義LCD接線位置
+LCD_RW		EQU	P1.1
+LCD_E		EQU	P1.2
+LCD_DATA	EQU	P2
+
+;		MOV	R5,#1		;如果電源關掉重開時,LCD無法正常顯示
+;		CALL	DELAY		;請加上此延遲程式
+
+		CLR	LCD_RW		;習慣上直接將LCD的RW接腳直接接地，
+
+		MOV	A,#00111000B	;設定LCD介面為8位元, 2行, 5x7字型
+		CALL	WRIR
+		MOV	A,#00001111B	;設定要LCD顯示, 要有游標, 要閃爍
+		CALL	WRIR
+		MOV	A,#00000110B	;設定寫資料進入LCD時, 顯示器不要動, 游標向右移一格
+		CALL	WRIR
+		MOV	A,#1		;清除LCD
+		CALL	WRIR
+
+		MOV	R5,#1		;延遲等清除LCD命令處理完畢
+		CALL	DELAY
+
+		MOV	A,#'0'		;顯示 0
+		CALL	WRDR
+		MOV	A,#'5'		;顯示 5
+		CALL	WRDR
+		MOV	A,#'1'		;顯示 1
+		CALL	WRDR
+		MOV	A,#'0'		;顯示 0
+		CALL	WRDR
+		MOV	A,#'7'		;顯示 7
+		CALL	WRDR
+		MOV	A,#'4'		;顯示 4
+		CALL	WRDR
+		MOV	A,#'3'		;顯示 3
+		CALL	WRDR
+		MOV	A,#10110010B
+		CALL	WRDR
+		MOV	A,#10111001B
+		CALL	WRDR
+		MOV	A,#11010010B
+		CALL	WRDR
+		MOV	A,#11011101B
+		CALL	WRDR
+		JMP	$
+
+WRiR:		CLR	LCD_RS		;寫命令到LCD副程式
+		SETB	LCD_E
+		MOV	LCD_DATA,A
+		MOV	R7,#50		;延遲等訊號穩定
+		DJNZ	R7,$
+		CLR	LCD_E		;讓Enable接腳產生負緣訊號
+		MOV	R7,#60		;延遲等訊號處裡完畢	
+		DJNZ	R7,$
+		RET
+
+WRDR:		SETB	LCD_RS		;寫資料到LCD副程式
+		SETB	LCD_E
+		MOV	LCD_DATA,A
+		MOV	R7,#50		;延遲等訊號穩定
+		DJNZ	R7,$
+		CLR	LCD_E		;讓Enable接腳產生負緣訊號
+		MOV	R7,#60		;延遲等訊號處裡完畢	
+		DJNZ	R7,$
+		RET
+
+DELAY:		MOV	R6,#100
+DEL:		MOV	R7,#100
+		DJNZ	R7,$
+		DJNZ	R6,DEL
+		DJNZ	R5,DELAY
+		RET
+
+		END

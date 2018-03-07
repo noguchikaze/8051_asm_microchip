@@ -1,0 +1,80 @@
+A51 MACRO ASSEMBLER  LAB5_2                                                               10/31/2017 18:38:23 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.01
+OBJECT MODULE PLACED IN .\LAB5-2.obj
+ASSEMBLER INVOKED BY: C:\Keil\C51\BIN\A51.EXE ..\5\LAB5-2.ASM SET(SMALL) DEBUG PRINT(.\LAB5-2.lst) OBJECT(.\LAB5-2.obj) EP
+
+LOC  OBJ            LINE     SOURCE
+
+0000                   1     ORG     00H
+0000 804E              2     JMP     START
+0050                   3     ORG     50H
+                       4     
+                       5     ;P0最低腳位全部朝上       
+                       6     ;P1最低腳位全部朝上      
+                       7     
+0050                   8     START:
+0050 7801              9             MOV     R0,#00000001B   ;放在P1(控制亮的行)
+0052 7901             10             MOV     R1,#00000001B   ;放在P0(控制亮的列)
+0054 7A00             11             MOV     R2,#00H         ;掃描用的
+0056 7B00             12             MOV     R3,#0H          ;數R1的旋轉數
+0058 7C00             13             MOV     R4,#0H          ;數R0的旋轉次數
+005A                  14     LOOP:
+005A 0A               15             INC     R2              ;掃描++
+005B 8890             16             MOV     P1,R0           
+005D 8980             17             MOV     P0,R1
+005F 117C             18             CALL    DELAY   
+                      19     
+0061 BA55F6           20             CJNE    R2,#055H,LOOP
+                      21     
+                      22             ;當掃描完了以後
+0064 E9               23             MOV     A,R1
+0065 23               24             RL      A       ;把R1向左轉
+0066 F9               25             MOV     R1,A
+0067 0B               26             INC     R3      ;R1旋轉次數++
+0068 7A00             27             MOV     R2,#00H ;掃描次數歸零
+                      28     
+006A BB07ED           29             CJNE    R3,#7H,LOOP
+                      30             ;當R1轉完了以後
+006D E8               31             MOV     A,R0
+006E 23               32             RL      A               ;把R0向左轉
+006F F8               33             MOV     R0,A
+0070 0C               34             INC     R4              ;R0旋轉次數++
+0071 7901             35             MOV     R1,#00000001B   ;R1回到原本的第一列
+0073 7B00             36             MOV     R3,#0H          ;將R1旋轉數歸零
+0075 7A00             37             MOV     R2,#00H         ;掃瞄次數歸零
+                      38     
+0077 BC05E0           39             CJNE    R4,#5H,LOOP     ;R0旋轉次數到達底端
+007A 80D4             40             JMP     START   
+                      41     
+007C                  42     DELAY:
+007C 7E0A             43             MOV     R6,#0AH
+007E                  44     DELAY1:
+007E 7F2F             45             MOV     R7,#2FH
+0080                  46     DELAY2:
+0080 DFFE             47             DJNZ    R7,DELAY2
+0082 DEFA             48             DJNZ    R6,DELAY1
+0084 22               49             RET
+                      50     END
+A51 MACRO ASSEMBLER  LAB5_2                                                               10/31/2017 18:38:23 PAGE     2
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+DELAY. . . . . . .  C ADDR   007CH   A   
+DELAY1 . . . . . .  C ADDR   007EH   A   
+DELAY2 . . . . . .  C ADDR   0080H   A   
+LOOP . . . . . . .  C ADDR   005AH   A   
+P0 . . . . . . . .  D ADDR   0080H   A   
+P1 . . . . . . . .  D ADDR   0090H   A   
+START. . . . . . .  C ADDR   0050H   A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S)

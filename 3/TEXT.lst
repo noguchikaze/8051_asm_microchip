@@ -1,0 +1,118 @@
+A51 MACRO ASSEMBLER  TEXT                                                                 11/14/2017 18:44:37 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.01
+OBJECT MODULE PLACED IN .\TEXT.obj
+ASSEMBLER INVOKED BY: C:\Keil\C51\BIN\A51.EXE C:\Users\user\Desktop\TEXT.ASM SET(SMALL) DEBUG PRINT(.\TEXT.lst) OBJECT(.
+                      \TEXT.obj) EP
+
+LOC  OBJ            LINE     SOURCE
+
+0000                   1     ORG     00H
+0000 804E              2     JMP     PRE
+0050                   3     ORG     50H
+                       4     
+                       5     ;P1=KEY
+                       6     ;P0
+0050                   7     PRE:
+0050 90009D            8             MOV     DPTR,#TABLE
+0053                   9     START:
+0053 787F             10             MOV     R0,#01111111B
+0055 7900             11             MOV     R1,#0   ;ROW COUNTER
+0057 7A00             12             MOV     R2,#0   ;INDEX FOR ROW
+0059                  13     ROW:
+0059 8890             14             MOV     P1,R0           ;CHECK ROW
+005B 1194             15             CALL    DELAY
+005D E590             16             MOV     A,P1
+005F 540F             17             ANL     A,#00001111B    ;CHECK IF KEY IS PRESSED
+                      18     
+0061 09               19             INC     R1              ;ROW COUNTER++
+                      20     
+0062 B40F0C           21             CJNE    A,#00001111B,COL1
+                      22     ;=========在沒有按鍵按下的情況==============================
+                      23     
+0065 E8               24             MOV     A,R0
+0066 03               25             RR      A
+0067 F8               26             MOV     R0,A
+                      27     
+0068 EA               28             MOV     A,R2
+0069 2404             29             ADD     A,#4            ;INDEX FOR ROW +4
+006B FA               30             MOV     R2,A
+                      31     
+006C B904EA           32             CJNE    R1,#4,ROW
+                      33     ;==========掃完每一列以後===================================
+006F 80E2             34             JMP     START   ;從頭開始掃描   
+                      35     
+                      36     ;==========掃描完後,A有四種狀況: 0111 1011 1101 1110==============
+                      37     
+0071                  38     COL1:
+0071 B40E04           39             CJNE    A,#00001110B,COL2
+0074 7B00             40             MOV     R3,#0   ;FOR INDEX
+0076 8015             41             JMP     SHOW
+0078                  42     COL2:
+0078 B40D04           43             CJNE    A,#00001101B,COL3
+007B 7B01             44             MOV     R3,#1   ;FOR INDEX
+007D 800E             45             JMP     SHOW
+007F                  46     COL3:
+007F B40B04           47             CJNE    A,#00001011B,COL4
+0082 7B02             48             MOV     R3,#2   ;FOR INDEX
+0084 8007             49             JMP     SHOW
+0086                  50     COL4:
+0086 B407CA           51             CJNE    A,#00000111B,START
+0089 7B03             52             MOV     R3,#3   ;FOR INDEX
+008B 8000             53             JMP     SHOW
+                      54             
+008D                  55     SHOW:
+008D EA               56             MOV     A,R2    ;MOV INDEX INTO A
+008E 2B               57             ADD     A,R3    ;ADD THE INDEX OF COL
+A51 MACRO ASSEMBLER  TEXT                                                                 11/14/2017 18:44:37 PAGE     2
+
+008F 93               58             MOVC    A,@A+DPTR
+0090                  59     OVER:
+0090 F5A0             60             MOV     P2,A    ;輸出至七段顯示器
+0092 80BF             61             JMP     START   ;從頭開始掃描
+                      62     
+0094                  63     DELAY:
+0094 7D64             64             MOV     R5,#100
+0096                  65     DELAY1:
+0096 7E96             66             MOV     R6,#150
+0098                  67     DELAY2:
+0098 DEFE             68             DJNZ    R6,DELAY2
+009A DDFA             69             DJNZ    R5,DELAY1
+009C 22               70             RET
+                      71     ;===================TABLE=====================
+009D                  72     TABLE:
+009D E0E1E2E3         73             DB      11100000B,11100001B,11100010B,11100011B
+00A1 E4E5E6E7         74             DB      11100100B,11100101B,11100110B,11100111B
+00A5 E8E9F0F0         75             DB      11101000B,11101001B,11110000B,11110000B
+00A9 F0F0F0F0         76             DB      11110000B,11110000B,11110000B,11110000B
+*** WARNING #A41 IN 76 (C:\Users\user\Desktop\TEXT.ASM, LINE 76): MISSING 'END' STATEMENT
+A51 MACRO ASSEMBLER  TEXT                                                                 11/14/2017 18:44:37 PAGE     3
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+COL1 . . . . . . .  C ADDR   0071H   A   
+COL2 . . . . . . .  C ADDR   0078H   A   
+COL3 . . . . . . .  C ADDR   007FH   A   
+COL4 . . . . . . .  C ADDR   0086H   A   
+DELAY. . . . . . .  C ADDR   0094H   A   
+DELAY1 . . . . . .  C ADDR   0096H   A   
+DELAY2 . . . . . .  C ADDR   0098H   A   
+OVER . . . . . . .  C ADDR   0090H   A   
+P1 . . . . . . . .  D ADDR   0090H   A   
+P2 . . . . . . . .  D ADDR   00A0H   A   
+PRE. . . . . . . .  C ADDR   0050H   A   
+ROW. . . . . . . .  C ADDR   0059H   A   
+SHOW . . . . . . .  C ADDR   008DH   A   
+START. . . . . . .  C ADDR   0053H   A   
+TABLE. . . . . . .  C ADDR   009DH   A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  1 WARNING(S), 0 ERROR(S)

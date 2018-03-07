@@ -1,0 +1,489 @@
+A51 MACRO ASSEMBLER  PLAN_B_1                                                             01/19/2018 04:28:22 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.01
+OBJECT MODULE PLACED IN .\plan_B-1.obj
+ASSEMBLER INVOKED BY: C:\Keil\C51\BIN\A51.EXE C:\Users\user\Downloads\plan_B-1.asm SET(SMALL) DEBUG PRINT(.\plan_B-1.lst
+                      ) OBJECT(.\plan_B-1.obj) EP
+
+LOC  OBJ            LINE     SOURCE
+
+                       1     ;FRAME ADD DPTR FOR THE SPECTRUM
+                       2     ;Try with only one 8051
+                       3     ;By using "INT1" to control the "COUNTER1" running
+                       4     ;INT1 means trigger when the debounce button presssed
+                       5     ;And both the LED and the buzzer runs by "T0"
+                       6     ;TR0 => LED runs => trigger => INT1 => check
+0000                   7     ORG 00H
+0000 8050              8     JMP INIT
+                       9     ;ORG 03H
+                      10     ;JMP PLAYAGAIN
+000B                  11     ORG 0BH ;TIMER0中斷
+000B 2185             12     JMP SHIFTING
+0013                  13     ORG 13H ;INT1
+0013 2173             14     JMP TRIGGER
+0050                  15     ORG 50H
+0050 8028             16     JMP MAIN
+                      17     
+  REG                 18     CNTS    EQU R7  ;To determine how many 0.05sec to run
+  REG                 19     INDEXL  EQU R6  ;To move on the spectrum of LED
+  REG                 20     SHIFTCNT  EQU R2
+  REG                 21     ONPU    EQU R1  ;amount of onpu in the music
+  REG                 22     SCORE   EQU R0  ;The score
+  00A0                23     DISPLAY EQU P2  ;to show the judjment of the result
+  0090                24     KEY     EQU P1  ;keyboard
+  0080                25     LED     EQU P0  ;LEDS
+  0087                26     LAST    EQU P0.7  ;The last LED
+  0034                27     SCOREHUN  EQU 34H
+  0035                28     SCORETEN  EQU 35H
+  0036                29     SCOREONE  EQU 36H
+  0001                30     AGAIN   EQU  20H.1
+                      31     
+                      32     ;Setting External interrupt 1 and TIMER0 interrupt
+0052                  33     INIT:
+0052 75B800           34       MOV IP,#00000000B  ;External interrupt Priority
+0055 75A806           35       MOV IE,#00000110B  ;ET0 EX1
+                      36       ;EA WILL BE ENABLED AFTER THE selection
+0058 758901           37       MOV TMOD,#00000001B ;TIMER0 ready for the shift
+                      38                           ;MODE1
+005B C28C             39       CLR TR0
+005D D28A             40       SETB IT1  ;Ngative edge trigger
+005F D288             41       SETB IT0
+0061 C289             42       CLR IE0
+0063 C28B             43       CLR IE1   ;Clear interrupt flag
+0065 C28D             44       CLR TF0   ;Clear timer interrupt flag
+                      45       ;Setting the timer overflows every 0.01sec
+0067 758CD8           46       MOV TH0,#0D8H
+006A 758AF0           47       MOV TL0,#0F0H
+006D 7580FC           48       MOV LED,#11111100B
+0070 7800             49       MOV SCORE,#0
+0072 7E00             50       MOV INDEXL,#0
+0074 7A08             51       MOV SHIFTCNT,#8
+0076 D2D5             52       SETB F0
+0078 C201             53       CLR AGAIN
+007A                  54     MAIN:
+007A 31A5             55       CALL SHOWFIRST  ;SHOW 1 2 3 4 ON THE SCREEN
+007C                  56     SCAN:
+                      57       ;SELECT THE SPEED OF THE GAME FROM THE KEYBOARD
+A51 MACRO ASSEMBLER  PLAN_B_1                                                             01/19/2018 04:28:22 PAGE     2
+
+007C 75907F           58       MOV KEY,#01111111B
+007F 5167             59       CALL  KDELAY
+0081 E590             60       MOV A,KEY
+0083 540F             61       ANL A,#00001111B
+0085 B40F07           62       CJNE A,#1111B,SELECT
+0088 20D5EF           63       JB  F0,MAIN
+008B 31BA             64       CALL SHOWSECOND ;SHOW 3 4 5 7 ON THE SCREEN
+008D 80ED             65       JMP SCAN  ;KEEP SCANNING IF NOTHING IS presssed
+                      66     ;-----------------BUTTON presssed-------------------
+008F                  67     SELECT:
+008F                  68     COL1:
+008F B40E1B           69       CJNE A,#1110B,COL2
+0092 30D50E           70       JNB F0,SPEED1  ;SELECT THE SPEED IF FLAG=0
+                      71       ;NOW IS THE MODE OF SELECTING DIFFERENT MUSICS
+0095 C2D5             72       CLR F0  ;Clear flag
+0097 75A0E1           73       MOV DISPLAY,#11100001B
+009A 900251           74       MOV DPTR,#EASYMODE
+009D 7916             75       MOV ONPU,#22
+009F 5179             76       CALL LDELAY
+00A1 80D9             77       JMP SCAN
+00A3                  78     SPEED1:
+00A3 753003           79       MOV 30H,#3
+00A6 75A0E3           80       MOV DISPLAY,#11100011B
+00A9 5179             81       CALL LDELAY
+00AB 805A             82       JMP START
+00AD                  83     COL2:
+00AD B40D1B           84       CJNE A,#1101B,COL3
+00B0 30D50E           85       JNB F0,SPEED2  ;SELECT THE SPEED IF FLAG=0
+                      86       ;NOW IS THE MODE OF SELECTING DIFFERENT MUSICS
+00B3 C2D5             87       CLR F0  ;Clear flag
+00B5 75A0D2           88       MOV DISPLAY,#11010010B
+00B8 900239           89       MOV DPTR,#PRACTICE
+00BB 7918             90       MOV ONPU,#24
+00BD 5179             91       CALL LDELAY
+00BF 80BB             92       JMP SCAN
+00C1                  93     SPEED2:
+00C1 753004           94       MOV  30H,#4
+00C4 75A0D4           95       MOV DISPLAY,#11010100B
+00C7 5179             96       CALL LDELAY
+00C9 803C             97       JMP  START
+00CB                  98     COL3:
+00CB B40B1B           99       CJNE A,#1011B,COL4
+00CE 30D50E          100       JNB F0,SPEED3  ;SELECT THE SPEED IF FLAG=0
+                     101       ;NOW IS THE MODE OF SELECTING DIFFERENT MUSICS
+00D1 C2D5            102       CLR F0  ;Clear flag
+00D3 75A0B3          103       MOV DISPLAY,#10110011B
+00D6 9001E9          104       MOV DPTR,#BELIEF
+00D9 7929            105       MOV ONPU,#41
+00DB 5179            106       CALL LDELAY
+00DD 809D            107       JMP SCAN
+00DF                 108     SPEED3:
+00DF 753005          109       MOV  30H,#5
+00E2 75A0B5          110       MOV DISPLAY,#10110101B
+00E5 5179            111       CALL LDELAY
+00E7 801E            112       JMP  START
+00E9                 113     COL4:
+00E9 B40790          114       CJNE A,#0111B,SCAN
+00EC 30D50E          115       JNB F0,SPEED4  ;SELECT THE SPEED IF FLAG=0
+                     116       ;NOW IS THE MODE OF SELECTING DIFFERENT MUSICS
+00EF C2D5            117       CLR F0  ;Clear flag
+00F1 75A074          118       MOV DISPLAY,#01110100B
+00F4 900212          119       MOV DPTR,#STAR
+                     120     ;  MOV DPH4,DPH
+                     121     ;  MOV DPL4,DPL
+00F7 7927            122       MOV ONPU,#39
+00F9 5179            123       CALL LDELAY
+A51 MACRO ASSEMBLER  PLAN_B_1                                                             01/19/2018 04:28:22 PAGE     3
+
+00FB 017C            124       JMP SCAN
+00FD                 125     SPEED4:
+00FD 753007          126       MOV  30H,#7
+0100 75A077          127       MOV DISPLAY,#01110111B
+0103 5179            128       CALL LDELAY
+0105 8000            129       JMP  START
+                     130     ;=======GAME START===========
+0107                 131     START:
+0107 D2AF            132       SETB EA
+                     133       ;initialize the first CNTS
+                     134       ;MOV DPTR,#XXX was alreadt implemented up in the selection
+0109 EE              135       MOV A,INDEXL
+010A 93              136       MOVC A,@A+DPTR ;Take out the multiplying data
+010B F5F0            137       MOV B,A   ;move the multiplied number into B reg
+010D E530            138       MOV A,30H ;move the counting base tempo into A
+010F A4              139       MUL AB    ;with low order bytes in A so we catch a
+0110 FF              140       MOV CNTS,A  ;and put the beat into CNTS
+0111 F531            141       MOV 31H,A  ;and put the multiplied beat into 31H
+0113                 142     COUNTDOWN:
+                     143       ;SHOW THE COUNTDOWN FROM 3
+0113 75A003          144       MOV   DISPLAY,#00000011B  ;3333
+0116 5179            145       CALL  LDELAY
+0118 75A002          146       MOV   DISPLAY,#00000010B  ;2222
+011B 5179            147       CALL  LDELAY
+011D 75A001          148       MOV   DISPLAY,#00000001B  ;1111
+0120 5179            149       CALL  LDELAY
+0122 75A070          150       MOV   DISPLAY,#01110000B  ;XXX0
+0125 D28C            151       SETB  TR0 ;TIMER0 run
+0127                 152     MUSICRUN:
+0127 B900FD          153       CJNE ONPU,#0,$
+012A 75A881          154       MOV IE,#10000001B
+                     155     
+012D                 156     SHOWSCORE:
+                     157     ;這裡的CODE要用呼叫涵式掃描顯示
+                     158     ;不然會沒法顯示十位數就到0000了
+012D 75F064          159       MOV B,#100
+0130 E8              160       MOV A,SCORE ;A NUMBER UNDER 256
+0131 84              161       DIV AB
+0132 24D0            162       ADD A, #11010000B ;SHOW X N X X
+0134 F534            163       MOV SCOREHUN,A
+0136 E5F0            164       MOV A,B
+0138 75F00A          165       MOV B,#10
+013B E8              166       MOV A,SCORE
+013C 84              167       DIV AB
+013D 24B0            168       ADD A,#10110000B  ;N*10
+013F F535            169       MOV SCORETEN,A     ;SHOW X X N X
+0141 E5F0            170       MOV A,B
+0143 2470            171       ADD A,#01110000B  ;N
+0145 F536            172       MOV SCOREONE,A     ;SHOW X X X N
+                     173     
+0147                 174     CHECKPLAY:
+0147 300102          175       JNB AGAIN,LOOP
+014A 0152            176       JMP INIT  ;PLAY THE GAME AGAIN IF INT0 HAPPENED
+014C                 177     LOOP:
+014C 3158            178       CALL SHOW
+014E 7BFF            179       MOV R3,#0FFH
+0150 DBFA            180       DJNZ R3,LOOP
+0152 3168            181       CALL SPARCLE
+0154 5179            182       CALL LDELAY
+0156 80EF            183       JMP CHECKPLAY
+                     184     ;==========================================
+0158                 185     SHOW:
+0158 8534A0          186       MOV DISPLAY,SCOREHUN
+015B 5167            187       CALL  KDELAY
+015D 8535A0          188       MOV DISPLAY,SCORETEN
+0160 5167            189       CALL  KDELAY
+A51 MACRO ASSEMBLER  PLAN_B_1                                                             01/19/2018 04:28:22 PAGE     4
+
+0162 8536A0          190       MOV DISPLAY,SCOREONE
+0165 5167            191       CALL  KDELAY
+0167 22              192       RET
+                     193     ;========LET THE LIGHT SPARKLE===========
+0168                 194     SPARCLE:
+0168 75A0F0          195       MOV DISPLAY,#11110000B
+016B 5179            196       CALL LDELAY
+016D 22              197       RET
+                     198     ;=========External interrupt 0============
+016E                 199     PLAYAGAIN:
+016E C289            200       CLR IE0
+0170 D201            201       SETB AGAIN
+0172 32              202       RETI
+                     203     ;=========External interrupt 1============
+0173                 204     TRIGGER:
+0173 C28B            205       CLR IE1
+                     206     ;using the first method by checking with the state
+                     207     ;of the pin of last LED
+0175 308706          208       JNB  LAST,ONTONE
+0178                 209     OFFTONE:  ;Is not tapped on the tempo
+0178 31DC            210       CALL BOOP
+017A 75A070          211       MOV DISPLAY,#01110000B  ;show 0 if BAD
+017D 32              212       RETI
+017E                 213     ONTONE: ;IS tapped on the tempo
+017E 31CF            214       CALL BEEP
+0180 75A071          215       MOV DISPLAY,#01110001B  ;show 0 if GOOD
+0183 08              216       INC SCORE ;++score
+0184 32              217       RETI
+                     218     ;===========TIMER0 INT======================
+                     219     ;============ manual overload ==============
+0185                 220     SHIFTING:
+0185 DF17            221       DJNZ CNTS,TORET
+                     222       ;reload the counts
+0187 AF31            223       MOV CNTS,31H
+0189 E580            224       MOV A,LED
+018B 23              225       RL  A
+018C F580            226       MOV LED,A
+018E DA0E            227       DJNZ SHIFTCNT,TORET
+0190 7A08            228       MOV SHIFTCNT,#8
+0192                 229     SHIFTACOUNT:
+                     230       ;shift the count
+                     231       ;running from INDEXL=1
+0192 0E              232       INC INDEXL  ;++INDEXL
+0193 EE              233       MOV A,INDEXL  ;add A with the index first
+0194 93              234       MOVC A,@A+DPTR  ;Take out the multiplying data
+0195 F5F0            235       MOV  B,A  ;THROW THE DATA INTO B
+0197 E530            236       MOV  A,30H
+0199 A4              237       MUL AB
+019A F531            238       MOV 31H,A ;Throw the multiplied count into 31H
+019C FF              239       MOV CNTS,A
+019D 19              240       DEC ONPU
+019E                 241     TORET:  ;reload the TIMER0
+019E 758CD8          242       MOV TH0,#0D8H
+01A1 758AF0          243       MOV TL0,#0F0H
+01A4 32              244       RETI
+                     245     ;============SHOW THE NUM===================
+01A5                 246     SHOWFIRST:  ;1,2,3,4
+01A5 75A0E1          247       MOV DISPLAY,#11100001B
+01A8 5167            248       CALL KDELAY
+01AA 75A0D2          249       MOV DISPLAY,#11010010B
+01AD 5167            250       CALL KDELAY
+01AF 75A0B3          251       MOV DISPLAY,#10110011B
+01B2 5167            252       CALL KDELAY
+01B4 75A074          253       MOV DISPLAY,#01110100B
+01B7 5167            254       CALL KDELAY
+01B9 22              255       RET
+A51 MACRO ASSEMBLER  PLAN_B_1                                                             01/19/2018 04:28:22 PAGE     5
+
+                     256     
+01BA                 257     SHOWSECOND: ;3,4,5,7
+01BA 75A0E3          258       MOV DISPLAY,#11100011B
+01BD 5167            259       CALL KDELAY
+01BF 75A0D4          260       MOV DISPLAY,#11010100B
+01C2 5167            261       CALL KDELAY
+01C4 75A0B5          262       MOV DISPLAY,#10110101B
+01C7 5167            263       CALL KDELAY
+01C9 75A077          264       MOV DISPLAY,#01110111B
+01CC 5167            265       CALL KDELAY
+01CE 22              266       RET
+                     267     ;=======BUZZER BEEP=====================
+01CF                 268     BEEP:
+01CF 7B30            269       MOV R3,#030H
+01D1                 270     BBB:
+01D1 D2B0            271       SETB P3.0
+01D3 5167            272       CALL KDELAY
+01D5 C2B0            273       CLR  P3.0
+01D7 5167            274       CALL KDELAY
+01D9 DBF6            275       DJNZ R3,BBB
+01DB 22              276       RET
+01DC                 277     BOOP:
+01DC 7B20            278       MOV R3,#020H
+01DE                 279     BOO:
+01DE D2B0            280       SETB P3.0
+01E0 5170            281       CALL BDELAY
+01E2 C2B0            282       CLR  P3.0
+01E4 5170            283       CALL BDELAY
+01E6 DBF6            284       DJNZ  R3,BOO
+01E8 22              285       RET
+                     286     ;========PUT THE TEMPO======================
+01E9                 287     BELIEF: ;0-40
+                     288     ;CHANGE THE NUMBER PUT INTO CNTS
+                     289     ;SO THAT WE CAN CHANGE THE TEMPO BY MULTIPLYING IT
+01E9 02010101        290       DB  2,1,1,1,2,3,1,2,2,1
+01ED 02030102                
+01F1 0201                    
+01F3 01010101        291       DB  1,1,1,1,1,1,1,2,1,1,4
+01F7 01010102                
+01FB 010104                  
+01FE 02010101        292       DB  2,1,1,1,2,3,1,2,1,1,1
+0202 02030102                
+0206 010101                  
+0209 02010301        293       DB  2,1,3,1,3,1,1,2,3
+020D 03010102                
+0211 03                      
+                     294     
+0212                 295     STAR: ;0-38
+0212 01010101        296       DB  1,1,1,1,1,1,2
+0216 010102                  
+0219 01010101        297       DB  1,1,1,1,1,1,2
+021D 010102                  
+0220 02020101        298       DB  2,2,1,1,2
+0224 02                      
+0225 01010201        299       DB  1,1,2,1,1,2
+0229 0102                    
+022B 01010101        300       DB  1,1,1,1,1,1,2
+022F 010102                  
+0232 01010101        301       DB  1,1,1,1,1,1,2
+0236 010102                  
+                     302     
+0239                 303     PRACTICE: ;0-23
+0239 04030201        304       DB 4,3,2,1,4,3,2,1
+023D 04030201                
+0241 02020101        305       DB 2,2,1,1,3,2,3,1
+0245 03020301                
+A51 MACRO ASSEMBLER  PLAN_B_1                                                             01/19/2018 04:28:22 PAGE     6
+
+0249 03020101        306       DB 3,2,1,1,3,2,1,1
+024D 03020101                
+                     307     
+0251                 308     EASYMODE: ;0-21
+0251 02020202        309       DB 2,2,2,2,2
+0255 02                      
+0256 02010201        310       DB 2,1,2,1,2,1,1,1
+025A 02010101                
+025E 03020103        311       DB 3,2,1,3,2,1,3,2,1
+0262 02010302                
+0266 01                      
+                     312     ;===========================================
+0267                 313     TABLETONE:
+                     314     ;DO
+                     315     ;RE
+                     316     ;MI
+                     317     ;FA
+                     318     ;SOL
+                     319     ;LA
+                     320     ;SI
+                     321     ;HDO
+                     322     ;===========================================
+                     323     ;SHORT DELAY FOR KEYBOARD
+0267                 324     KDELAY:
+0267 7D1F            325             MOV     R5,#1FH
+0269                 326     K:
+0269 7C1F            327             MOV     R4,#1FH
+026B DCFE            328             DJNZ    R4,$
+026D DDFA            329             DJNZ    R5,K
+026F 22              330             RET
+0270                 331     BDELAY:
+0270 7D3F            332             MOV     R5,#3FH
+0272                 333     K2:
+0272 7C1F            334             MOV     R4,#1FH
+0274 DCFE            335             DJNZ    R4,$
+0276 DDFA            336             DJNZ    R5,K2
+0278 22              337             RET
+                     338     
+                     339     ;LONG DELAY FOR COUNTDOWN
+0279                 340     LDELAY:
+0279 7B15            341       MOV R3,#015H ;12
+                     342     ;  MOV R3,#0CH ;12
+027B                 343     L1:
+027B 7DFF            344       MOV R5,#0FFH  ;213
+                     345     ;  MOV R5,#0D5H  ;213
+027D                 346     L:
+027D 7CFF            347       MOV R4,#0FFH  ;194
+                     348     ;  MOV R4,#0C2H  ;194
+027F DCFE            349       DJNZ  R4,$
+0281 DDFA            350       DJNZ  R5,L
+0283 DBF6            351       DJNZ  R3,L1
+0285 22              352       RET
+                     353     ;==========================================
+0286                 354     TOEND:
+                     355     END
+A51 MACRO ASSEMBLER  PLAN_B_1                                                             01/19/2018 04:28:22 PAGE     7
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+AGAIN. . . . . . .  B ADDR   0020H.1 A   
+B. . . . . . . . .  D ADDR   00F0H   A   
+BBB. . . . . . . .  C ADDR   01D1H   A   
+BDELAY . . . . . .  C ADDR   0270H   A   
+BEEP . . . . . . .  C ADDR   01CFH   A   
+BELIEF . . . . . .  C ADDR   01E9H   A   
+BOO. . . . . . . .  C ADDR   01DEH   A   
+BOOP . . . . . . .  C ADDR   01DCH   A   
+CHECKPLAY. . . . .  C ADDR   0147H   A   
+CNTS . . . . . . .    REG    R7          
+COL1 . . . . . . .  C ADDR   008FH   A   
+COL2 . . . . . . .  C ADDR   00ADH   A   
+COL3 . . . . . . .  C ADDR   00CBH   A   
+COL4 . . . . . . .  C ADDR   00E9H   A   
+COUNTDOWN. . . . .  C ADDR   0113H   A   
+DISPLAY. . . . . .  D ADDR   00A0H   A   
+EA . . . . . . . .  B ADDR   00A8H.7 A   
+EASYMODE . . . . .  C ADDR   0251H   A   
+F0 . . . . . . . .  B ADDR   00D0H.5 A   
+IE . . . . . . . .  D ADDR   00A8H   A   
+IE0. . . . . . . .  B ADDR   0088H.1 A   
+IE1. . . . . . . .  B ADDR   0088H.3 A   
+INDEXL . . . . . .    REG    R6          
+INIT . . . . . . .  C ADDR   0052H   A   
+IP . . . . . . . .  D ADDR   00B8H   A   
+IT0. . . . . . . .  B ADDR   0088H.0 A   
+IT1. . . . . . . .  B ADDR   0088H.2 A   
+K. . . . . . . . .  C ADDR   0269H   A   
+K2 . . . . . . . .  C ADDR   0272H   A   
+KDELAY . . . . . .  C ADDR   0267H   A   
+KEY. . . . . . . .  D ADDR   0090H   A   
+L. . . . . . . . .  C ADDR   027DH   A   
+L1 . . . . . . . .  C ADDR   027BH   A   
+LAST . . . . . . .  B ADDR   0080H.7 A   
+LDELAY . . . . . .  C ADDR   0279H   A   
+LED. . . . . . . .  D ADDR   0080H   A   
+LOOP . . . . . . .  C ADDR   014CH   A   
+MAIN . . . . . . .  C ADDR   007AH   A   
+MUSICRUN . . . . .  C ADDR   0127H   A   
+OFFTONE. . . . . .  C ADDR   0178H   A   
+ONPU . . . . . . .    REG    R1          
+ONTONE . . . . . .  C ADDR   017EH   A   
+P0 . . . . . . . .  D ADDR   0080H   A   
+P1 . . . . . . . .  D ADDR   0090H   A   
+P2 . . . . . . . .  D ADDR   00A0H   A   
+P3 . . . . . . . .  D ADDR   00B0H   A   
+PLAYAGAIN. . . . .  C ADDR   016EH   A   
+PRACTICE . . . . .  C ADDR   0239H   A   
+SCAN . . . . . . .  C ADDR   007CH   A   
+SCORE. . . . . . .    REG    R0          
+SCOREHUN . . . . .  N NUMB   0034H   A   
+SCOREONE . . . . .  N NUMB   0036H   A   
+SCORETEN . . . . .  N NUMB   0035H   A   
+SELECT . . . . . .  C ADDR   008FH   A   
+SHIFTACOUNT. . . .  C ADDR   0192H   A   
+SHIFTCNT . . . . .    REG    R2          
+SHIFTING . . . . .  C ADDR   0185H   A   
+SHOW . . . . . . .  C ADDR   0158H   A   
+SHOWFIRST. . . . .  C ADDR   01A5H   A   
+SHOWSCORE. . . . .  C ADDR   012DH   A   
+A51 MACRO ASSEMBLER  PLAN_B_1                                                             01/19/2018 04:28:22 PAGE     8
+
+SHOWSECOND . . . .  C ADDR   01BAH   A   
+SPARCLE. . . . . .  C ADDR   0168H   A   
+SPEED1 . . . . . .  C ADDR   00A3H   A   
+SPEED2 . . . . . .  C ADDR   00C1H   A   
+SPEED3 . . . . . .  C ADDR   00DFH   A   
+SPEED4 . . . . . .  C ADDR   00FDH   A   
+STAR . . . . . . .  C ADDR   0212H   A   
+START. . . . . . .  C ADDR   0107H   A   
+TABLETONE. . . . .  C ADDR   0267H   A   
+TF0. . . . . . . .  B ADDR   0088H.5 A   
+TH0. . . . . . . .  D ADDR   008CH   A   
+TL0. . . . . . . .  D ADDR   008AH   A   
+TMOD . . . . . . .  D ADDR   0089H   A   
+TOEND. . . . . . .  C ADDR   0286H   A   
+TORET. . . . . . .  C ADDR   019EH   A   
+TR0. . . . . . . .  B ADDR   0088H.4 A   
+TRIGGER. . . . . .  C ADDR   0173H   A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S)

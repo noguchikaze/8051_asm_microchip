@@ -1,0 +1,62 @@
+A51 MACRO ASSEMBLER  LAB2_2                                                               01/19/2018 13:48:47 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.01
+OBJECT MODULE PLACED IN .\lab2-2.obj
+ASSEMBLER INVOKED BY: C:\Keil\C51\BIN\A51.EXE ..\2\lab2-2.asm SET(SMALL) DEBUG PRINT(.\lab2-2.lst) OBJECT(.\lab2-2.obj) EP
+
+LOC  OBJ            LINE     SOURCE
+
+0000                   1     ORG     00H
+0000 0150              2     AJMP    MAIN
+0050                   3     ORG     50H
+                       4     
+0050                   5     MAIN:
+0050 7480              6             MOV     A,#80H
+0052 FB                7             MOV     R3,A
+                       8     
+0053                   9     LOOP:
+0053 EB               10             MOV     A,R3
+0054 A990             11             MOV     R1,P1  ;P1=I/O
+0056 23               12             RL      A                       ;SPIN A
+0057 FB               13     MOV     R3,A    ;LET R3 BE THE COPY OF A
+0058 F580             14             MOV     P0,A       ;P0=LED
+005A E9               15             MOV     A,R1       ;MOV I/O TO A
+005B 2401             16             ADD     A,#01H
+005D 1161             17             ACALL   DELAY
+005F 0153             18             AJMP    LOOP
+                      19     
+0061                  20     DELAY:
+0061 7DFF             21             MOV      R5,#0FFH
+0063                  22     DELAY1:
+0063 7EFF             23             MOV      R6,#0FFH
+0065                  24     DELAY2:
+0065 FF               25             MOV      R7,A
+0066                  26     DELAY3:
+0066 DFFE             27             DJNZ    R7,DELAY3
+0068 DEFB             28             DJNZ    R6,DELAY2
+006A DDF7             29             DJNZ    R5,DELAY1
+006C 22               30             RET
+                      31             END
+A51 MACRO ASSEMBLER  LAB2_2                                                               01/19/2018 13:48:47 PAGE     2
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+DELAY. . . . . . .  C ADDR   0061H   A   
+DELAY1 . . . . . .  C ADDR   0063H   A   
+DELAY2 . . . . . .  C ADDR   0065H   A   
+DELAY3 . . . . . .  C ADDR   0066H   A   
+LOOP . . . . . . .  C ADDR   0053H   A   
+MAIN . . . . . . .  C ADDR   0050H   A   
+P0 . . . . . . . .  D ADDR   0080H   A   
+P1 . . . . . . . .  D ADDR   0090H   A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S)

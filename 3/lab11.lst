@@ -1,0 +1,154 @@
+A51 MACRO ASSEMBLER  LAB11                                                                01/17/2018 01:17:45 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.01
+OBJECT MODULE PLACED IN .\lab11.obj
+ASSEMBLER INVOKED BY: C:\Keil\C51\BIN\A51.EXE C:\Users\user\Downloads\lab11.ASM SET(SMALL) DEBUG PRINT(.\lab11.lst) OBJE
+                      CT(.\lab11.obj) EP
+
+LOC  OBJ            LINE     SOURCE
+
+0000                   1     ORG     00H
+0000 801B              2     JMP     INITIAL
+001B                   3     ORG     1BH             ;TIMER1 INTERRUPT VECTOR
+001B 8025              4     JMP     INTERRUPT
+                       5     ;想要用MODE1
+                       6     ;好處是有16BIT可以用
+                       7     
+  REG                  8     TLOW            EQU     R0
+  REG                  9     THIGH   EQU     R1
+  REG                 10     INDEX   EQU     R2
+  REG                 11     COUNTER         EQU     R3
+                      12     
+001D                  13     INITIAL:
+                      14     ;TIMER1 SETTINGS
+001D D2AB             15             SETB    ET1                     ;TIMER1 INTERRUPT ENABLE
+001F C28F             16             CLR             TF1                     ;中斷FLAG=0
+0021 D2AF             17             SETB    EA                      ;INTERRUPT ENABLE
+0023 758910           18             MOV             TMOD,#10H       ;T1:16bit timer MODE1 非外部中斷 GATE=0
+                      19             ;G C/T 0 1 X X X X(TMOD 在T/C1 MODE 1 的設定
+0026 7A00             20             MOV     INDEX,#0
+0028 7B00             21             MOV     COUNTER,#0
+002A 7C00             22             MOV     R4,#0   ;數到SI
+002C                  23     MOVETABLE:                                              
+                      24     ;TIMER1 
+002C 90006C           25             MOV             DPTR,#TABLE
+002F EA               26             MOV             A,INDEX
+0030 93               27             MOVC    A,@A+DPTR
+                      28     
+0031 F9               29             MOV             THIGH,A
+0032 F58D             30             MOV             TH1,A
+                      31     
+0034 1169             32             CALL    ADDINDEX
+0036 93               33             MOVC    A,@A+DPTR
+                      34     
+0037 F8               35             MOV             TLOW,A
+0038 F58B             36             MOV             TL1,A
+                      37             
+003A 1169             38             CALL    ADDINDEX
+003C 93               39             MOVC            A,@A+DPTR
+003D FB               40             MOV     COUNTER,A       ;頻率
+                      41     
+003E D28E             42             SETB            TR1     ;打開開關
+0040                  43     MAIN:
+0040 80FE             44             JMP $
+                      45             
+0042                  46     INTERRUPT:
+0042 1B               47             DEC     COUNTER
+0043 BB0002           48             CJNE    COUNTER,#0,GO
+0046 8007             49             JMP     CHANGE          ;如果數完了就換下個頻率      
+0048                  50     GO:     ;還沒數完就繼續
+                      51             ;改變TH&TL
+0048 898D             52             MOV     TH1,THIGH
+004A 888B             53             MOV     TL1,TLOW
+004C B291             54             CPL     P1.1            ;反向
+004E 32               55     RETI
+                      56     ;===============================
+004F                  57     CHANGE: ;換到下個頻率
+A51 MACRO ASSEMBLER  LAB11                                                                01/17/2018 01:17:45 PAGE     2
+
+004F 0C               58             INC             R4      ;++一個音
+0050 BC0704           59             CJNE    R4,#7,SHIFT
+0053 7C00             60             MOV     R4,#0
+0055 7AFF             61             MOV     INDEX,#0FFH
+0057                  62     SHIFT:
+0057 1169             63             CALL    ADDINDEX
+0059 93               64             MOVC    A,@A+DPTR
+005A F9               65             MOV     THIGH,A
+005B 1169             66             CALL    ADDINDEX
+005D 93               67             MOVC    A,@A+DPTR
+005E F8               68             MOV     TLOW,A
+005F 1169             69             CALL    ADDINDEX
+0061 93               70             MOVC    A,@A+DPTR
+0062 FB               71             MOV     COUNTER,A
+0063 32               72             RETI
+                      73     ;=======把不變的計數值丟到暫存器=====
+0064                  74     MOVHL:
+0064 898D             75             MOV     TH1,THIGH
+0066 888B             76             MOV     TL1,TLOW
+0068 22               77             RET
+                      78     ;==================================     
+0069                  79     ADDINDEX:
+0069 0A               80             INC     INDEX
+006A EA               81             MOV     A,INDEX
+006B 22               82             RET
+                      83     ;===============================
+006C                  84     TABLE:
+                      85     ;放TH 跟 TL
+                      86     ;DO     131Hz   1/(131*2)=3817us
+006C F11783           87             DB      0F1H,017H,131
+                      88             
+                      89     ;RE     147Hz   1/(147*2)=3401us
+006F F2B793           90             DB      0F2H,0B7H,147
+                      91     
+                      92     ;MI     165Hz   1/330=3030
+0072 F42AA5           93             DB      0F4H,2AH,165
+                      94     
+                      95     ;FA     175Hz   2857
+0075 F4D7AF           96             DB      0F4H,0D7H,175
+                      97     
+                      98     ;SOL    196Hz   2551
+0078 F609C4           99             DB      0F6H,09H,196
+                     100     
+                     101     ;LA     220     2273
+007B F71FDC          102             DB      0F7H,1FH,220
+                     103     
+                     104     ;SI     247     2024
+007E F818F7          105             DB      0F8H,18H,247
+*** WARNING #A41 IN 105 (C:\Users\user\Downloads\lab11.ASM, LINE 105): MISSING 'END' STATEMENT
+A51 MACRO ASSEMBLER  LAB11                                                                01/17/2018 01:17:45 PAGE     3
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+ADDINDEX . . . . .  C ADDR   0069H   A   
+CHANGE . . . . . .  C ADDR   004FH   A   
+COUNTER. . . . . .    REG    R3          
+EA . . . . . . . .  B ADDR   00A8H.7 A   
+ET1. . . . . . . .  B ADDR   00A8H.3 A   
+GO . . . . . . . .  C ADDR   0048H   A   
+INDEX. . . . . . .    REG    R2          
+INITIAL. . . . . .  C ADDR   001DH   A   
+INTERRUPT. . . . .  C ADDR   0042H   A   
+MAIN . . . . . . .  C ADDR   0040H   A   
+MOVETABLE. . . . .  C ADDR   002CH   A   
+MOVHL. . . . . . .  C ADDR   0064H   A   
+P1 . . . . . . . .  D ADDR   0090H   A   
+SHIFT. . . . . . .  C ADDR   0057H   A   
+TABLE. . . . . . .  C ADDR   006CH   A   
+TF1. . . . . . . .  B ADDR   0088H.7 A   
+TH1. . . . . . . .  D ADDR   008DH   A   
+THIGH. . . . . . .    REG    R1          
+TL1. . . . . . . .  D ADDR   008BH   A   
+TLOW . . . . . . .    REG    R0          
+TMOD . . . . . . .  D ADDR   0089H   A   
+TR1. . . . . . . .  B ADDR   0088H.6 A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  1 WARNING(S), 0 ERROR(S)

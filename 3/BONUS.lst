@@ -1,0 +1,167 @@
+A51 MACRO ASSEMBLER  BONUS                                                                10/17/2017 20:36:05 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.01
+OBJECT MODULE PLACED IN .\BONUS.obj
+ASSEMBLER INVOKED BY: C:\Keil\C51\BIN\A51.EXE C:\Users\user\Desktop\BONUS.asm SET(SMALL) DEBUG PRINT(.\BONUS.lst) OBJECT
+                      (.\BONUS.obj) EP
+
+LOC  OBJ            LINE     SOURCE
+
+0000                   1     ORG     0000H
+0000 0150              2     AJMP    MAIN
+0050                   3     ORG     0050H
+                       4     
+0050                   5     MAIN:
+0050 9000C9            6             MOV     DPTR,#SSTABLE
+0053 7900              7             MOV     R1,#0H
+                       8     
+0055                   9     LOOP1:
+0055 93               10             MOVC    A,@A+DPTR
+0056 F580             11             MOV     P0,A    ;將A移入七段顯示器
+                      12     
+                      13     ;把指撥開關的值存入A
+0058 A890             14             MOV     R0,P1
+005A E8               15             MOV     A,R0    ;指撥開關的值存入A
+005B B40003           16             CJNE    A,#0,LOOP2
+005E 7580C0           17             MOV     P0,#0C0H
+0061                  18     LOOP2:
+0061 209032           19             JB      P1.0,C0
+0064 209131           20             JB      P1.1,C1
+0067 209230           21             JB      P1.2,C2
+006A 20932F           22             JB      P1.3,C3
+006D 20942E           23             JB      P1.4,C4
+0070 20952D           24             JB      P1.5,C5
+0073 20962C           25             JB      P1.6,C6
+0076 20972B           26             JB      P1.7,C7
+                      27     
+0079 B9012E           28             CJNE    R1,#1,CDOT
+                      29             
+007C 209032           30             JB      P1.0,CC0
+007F 209132           31             JB      P1.1,CC1
+0082 209232           32             JB      P1.2,CC2
+0085 209332           33             JB      P1.3,CC3
+0088 209432           34             JB      P1.4,CC4
+008B 209532           35             JB      P1.5,CC5
+008E 209632           36             JB      P1.6,CC6
+0091 209732           37             JB      P1.7,CC7
+                      38     
+0094 0155             39             AJMP    LOOP1
+                      40     
+0096                  41     C0:
+0096 09               42             INC     R1
+0097 22               43     RET
+                      44     
+0098                  45     C1:
+0098 09               46             INC     R1
+0099 22               47     RET
+                      48     
+009A                  49     C2:
+009A 09               50             INC     R1
+009B 22               51     RET
+009C                  52     C3:
+009C 09               53             INC     R1
+009D 22               54     RET
+009E                  55     C4:
+009E 09               56             INC     R1
+009F 22               57     RET
+A51 MACRO ASSEMBLER  BONUS                                                                10/17/2017 20:36:05 PAGE     2
+
+00A0                  58     C5:
+00A0 09               59             INC     R1
+00A1 22               60     RET
+00A2                  61     C6:
+00A2 09               62             INC     R1
+00A3 22               63     RET
+00A4                  64     C7:
+00A4 09               65             INC     R1
+00A5 22               66     RET
+00A6                  67     C8:
+00A6 09               68             INC     R1
+00A7 22               69     RET
+00A8                  70     C9:
+00A8 09               71             INC     R1
+00A9 22               72     RET
+                      73     
+00AA                  74     CDOT:
+00AA 7900             75             MOV     R1,#0H
+00AC 758080           76             MOV     P0,#10000000B
+00AF 80A4             77             JMP     LOOP1
+00B1                  78     CC0:
+00B1 7401             79             MOV     A,#1
+00B3 22               80             RET
+00B4                  81     CC1:
+00B4 7402             82             MOV     A,#2
+00B6 22               83             RET
+00B7                  84     CC2:
+00B7 7403             85             MOV     A,#3
+00B9 22               86             RET
+00BA                  87     CC3:
+00BA 7404             88             MOV     A,#4
+00BC 22               89             RET
+00BD                  90     CC4:
+00BD 7405             91             MOV     A,#5
+00BF 22               92             RET
+00C0                  93     CC5:
+00C0 7406             94             MOV     A,#6
+00C2 22               95             RET
+00C3                  96     CC6:
+00C3 7407             97             MOV     A,#7
+00C5 22               98             RET
+00C6                  99     CC7:
+00C6 7408            100             MOV     A,#8
+00C8 22              101             RET
+                     102     
+                     103     
+00C9                 104     SSTABLE:
+00C9 C0              105             DB      0C0H    ;0
+00CA F9              106             DB      0F9H    ;1
+00CB A4              107             DB      0A4H    ;2
+00CC B0              108             DB      0B0H    ;3
+00CD 99              109             DB      099H    ;4
+00CE 92              110             DB      092H    ;5
+00CF 82              111             DB      082H    ;6
+00D0 F8              112             DB      0F8H    ;7
+00D1 80              113             DB      080H    ;8
+00D2 90              114             DB      090H    ;9
+                     115     
+                     116     END
+A51 MACRO ASSEMBLER  BONUS                                                                10/17/2017 20:36:05 PAGE     3
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+C0 . . . . . . . .  C ADDR   0096H   A   
+C1 . . . . . . . .  C ADDR   0098H   A   
+C2 . . . . . . . .  C ADDR   009AH   A   
+C3 . . . . . . . .  C ADDR   009CH   A   
+C4 . . . . . . . .  C ADDR   009EH   A   
+C5 . . . . . . . .  C ADDR   00A0H   A   
+C6 . . . . . . . .  C ADDR   00A2H   A   
+C7 . . . . . . . .  C ADDR   00A4H   A   
+C8 . . . . . . . .  C ADDR   00A6H   A   
+C9 . . . . . . . .  C ADDR   00A8H   A   
+CC0. . . . . . . .  C ADDR   00B1H   A   
+CC1. . . . . . . .  C ADDR   00B4H   A   
+CC2. . . . . . . .  C ADDR   00B7H   A   
+CC3. . . . . . . .  C ADDR   00BAH   A   
+CC4. . . . . . . .  C ADDR   00BDH   A   
+CC5. . . . . . . .  C ADDR   00C0H   A   
+CC6. . . . . . . .  C ADDR   00C3H   A   
+CC7. . . . . . . .  C ADDR   00C6H   A   
+CDOT . . . . . . .  C ADDR   00AAH   A   
+LOOP1. . . . . . .  C ADDR   0055H   A   
+LOOP2. . . . . . .  C ADDR   0061H   A   
+MAIN . . . . . . .  C ADDR   0050H   A   
+P0 . . . . . . . .  D ADDR   0080H   A   
+P1 . . . . . . . .  D ADDR   0090H   A   
+SSTABLE. . . . . .  C ADDR   00C9H   A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S)

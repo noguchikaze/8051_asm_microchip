@@ -1,0 +1,75 @@
+A51 MACRO ASSEMBLER  3_1                                                                  10/17/2017 20:04:11 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.01
+OBJECT MODULE PLACED IN 3-1.OBJ
+ASSEMBLER INVOKED BY: C:\Keil\C51\BIN\A51.EXE 3-1.asm SET(SMALL) DEBUG EP
+
+LOC  OBJ            LINE     SOURCE
+
+0000                   1     ORG     0000H
+0000 0150              2     AJMP    MAIN
+0050                   3     ORG     0050H
+                       4     
+0050                   5     MAIN:
+0050 900061            6             MOV     DPTR,#SSTABLE
+0053                   7     LOOP:
+0053 7A00              8             MOV     R2,#0H  ;R2=counter
+0055                   9     LOOP1:
+                      10     
+0055 EA               11             MOV     A,R2
+0056 93               12             MOVC    A,@A+DPTR
+0057 F580             13             MOV     P0,A
+0059 0A               14             INC     R2      
+005A 116B             15             ACALL   DELAY
+005C BA0AF6           16             CJNE    R2,#10,LOOP1    ;if R2!=10, jump to Loop 1
+005F 0153             17             AJMP    LOOP
+                      18     
+0061                  19     SSTABLE:
+0061 C0               20             DB      0C0H    ;0
+0062 F9               21             DB      0F9H    ;1
+0063 A4               22             DB      0A4H    ;2
+0064 B0               23             DB      0B0H    ;3
+0065 99               24             DB      099H    ;4
+0066 92               25             DB      092H    ;5
+0067 82               26             DB      082H    ;6
+0068 F8               27             DB      0F8H    ;7
+0069 80               28             DB      080H    ;8
+006A 90               29             DB      090H    ;9
+                      30     
+                      31     
+006B                  32     DELAY:
+006B 7DFF             33             MOV     R5 ,#0FFH
+006D                  34     DELAY1:
+006D 7EFF             35             MOV     R6 ,#0FFH
+006F                  36     DELAY2:
+006F 7F10             37             MOV     R7 ,#10H
+0071                  38     DELAY3:
+0071 DFFE             39             DJNZ    R7,DELAY3
+0073 DEFA             40             DJNZ    R6,DELAY2
+0075 DDF6             41             DJNZ    R5,DELAY1
+0077 22               42             RET
+                      43     END
+A51 MACRO ASSEMBLER  3_1                                                                  10/17/2017 20:04:11 PAGE     2
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+DELAY. . . . . . .  C ADDR   006BH   A   
+DELAY1 . . . . . .  C ADDR   006DH   A   
+DELAY2 . . . . . .  C ADDR   006FH   A   
+DELAY3 . . . . . .  C ADDR   0071H   A   
+LOOP . . . . . . .  C ADDR   0053H   A   
+LOOP1. . . . . . .  C ADDR   0055H   A   
+MAIN . . . . . . .  C ADDR   0050H   A   
+P0 . . . . . . . .  D ADDR   0080H   A   
+SSTABLE. . . . . .  C ADDR   0061H   A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S)

@@ -1,0 +1,87 @@
+A51 MACRO ASSEMBLER  ½X_í                                                                 10/25/2017 17:49:36 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.01
+OBJECT MODULE PLACED IN .\½Xªí.obj
+ASSEMBLER INVOKED BY: C:\Keil\C51\BIN\A51.EXE C:\Users\user\Desktop\½Xªí.ASM SET(SMALL) DEBUG PRINT(.\½Xªí.lst) OBJECT(.
+                      \½Xªí.obj) EP
+
+LOC  OBJ            LINE     SOURCE
+
+                       1     ;.SYMBOLS ON
+0000                   2     ORG     0000H
+0000 804E              3     JMP     START   
+0050                   4     ORG     50H
+                       5     
+                       6             
+                       7     
+0050                   8     START:
+0050 7870              9             MOV     R0,#70H ;01110000B      X X X N
+0052 79B6             10             MOV     R1,#0B6H        ;10110000B      X X N X
+0054 7D00             11             MOV     R5,#00H
+                      12     
+0056                  13     MAIN1:
+0056 0D               14             INC     R5
+0057 BDFF10           15             CJNE    R5,#0FFH,MAIN2  ;if R5!=5 JMP MAIN2
+005A 7D00             16             MOV     R5,#00H         ;±½´y¤­¦¸«á R5=0
+005C B8700A           17             CJNE    R0,#70H,OZ      
+005F 7879             18             MOV     R0,#79H
+0061 B9B002           19             CJNE    R1,#0B0H,TENZ
+0064 80EA             20             JMP     START
+0066                  21     TENZ:   ;R1!=0
+0066 19               22             DEC             R1
+0067 8001             23             JMP             MAIN2
+0069                  24     OZ:             ;R0!=0
+0069 18               25             DEC             R0
+                      26     
+006A                  27     MAIN2:
+006A 8890             28             MOV             P1,R0   ;Åã¥Ü­Ó¦ì¼Æ
+006C 117A             29             CALL    DELAY
+                      30     
+006E                  31     SHOW1:
+006E 8990             32             MOV             P1,R1   ;Åã¥Ü¤Q¦ì¼Æ
+0070 117A             33             CALL    DELAY
+                      34     
+0072                  35     STOP:
+0072 AB80             36             MOV             R3,P0
+0074 BB01DF           37             CJNE    R3,#1,MAIN1     ;¦pªG¶}Ãö¬O¶}ªº´N¦^¨ìMAIN
+0077 1D               38             DEC     R5              ;¦pªG¶}Ãö¬OÃöªº´N--R5 Å¥¦¥Ã»·°±¦b¨º¤@¬í
+0078 80DC             39             JMP     MAIN1
+                      40     
+007A                  41     DELAY:
+007A 7EFF             42             MOV     R6,#0FFH
+007C                  43     DELAY1:
+007C 7F0F             44             MOV     R7,#0FH
+007E                  45     DELAY2:
+                      46     
+007E DFFE             47             DJNZ    R7,DELAY2
+0080 DEFA             48             DJNZ    R6,DELAY1
+0082 22               49     RET
+                      50     
+                      51     END
+A51 MACRO ASSEMBLER  ½X_í                                                                 10/25/2017 17:49:36 PAGE     2
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+DELAY. . . . . . .  C ADDR   007AH   A   
+DELAY1 . . . . . .  C ADDR   007CH   A   
+DELAY2 . . . . . .  C ADDR   007EH   A   
+MAIN1. . . . . . .  C ADDR   0056H   A   
+MAIN2. . . . . . .  C ADDR   006AH   A   
+OZ . . . . . . . .  C ADDR   0069H   A   
+P0 . . . . . . . .  D ADDR   0080H   A   
+P1 . . . . . . . .  D ADDR   0090H   A   
+SHOW1. . . . . . .  C ADDR   006EH   A   
+START. . . . . . .  C ADDR   0050H   A   
+STOP . . . . . . .  C ADDR   0072H   A   
+TENZ . . . . . . .  C ADDR   0066H   A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S)

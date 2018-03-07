@@ -1,0 +1,152 @@
+A51 MACRO ASSEMBLER  LAB5_1                                                               10/28/2017 01:11:39 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.01
+OBJECT MODULE PLACED IN .\LAB5-1.obj
+ASSEMBLER INVOKED BY: C:\Keil\C51\BIN\A51.EXE C:\Users\user\Desktop\LAB5-1.ASM SET(SMALL) DEBUG PRINT(.\LAB5-1.lst) OBJE
+                      CT(.\LAB5-1.obj) EP
+
+LOC  OBJ            LINE     SOURCE
+
+0000                   1     ORG     00H
+0000 804E              2     JMP     START
+0050                   3     ORG     50H
+                       4     
+                       5     ;R3=掃描
+                       6     
+0050                   7     START:
+0050 7B00              8             MOV     R3,#0           ;掃描
+0052 7910              9             MOV     R1,#10H         ;00010000B
+0054 7800             10             MOV     R0,#0           ;index
+0056 9000B8           11             MOV     DPTR,#TABLE
+                      12     
+0059                  13     BIG:
+0059 0B               14             INC     R3
+                      15     
+005A 759000           16             MOV     P1,#0H          ;關閉共陽
+005D E8               17             MOV     A,R0            ;index of table
+005E 93               18             MOVC    A,@A+DPTR
+005F F580             19             MOV     P0,A
+0061 8990             20             MOV     P1,R1
+                      21     
+0063 08               22             INC     R0
+0064 E9               23             MOV     A,R1    ;R1右璇
+0065 03               24             RR      A
+                      25     
+0066 F9               26             MOV     R1,A
+0067 11C7             27             CALL    DELAY
+                      28     
+0069 B805ED           29             CJNE    R0,#5,BIG
+                      30     
+                      31             ;當行數跑到最後一行了以後
+                      32     
+006C 7800             33             MOV     R0,#0           ;行數歸零
+006E 7910             34             MOV     R1,#10H
+0070 BBFFE6           35             CJNE    R3,#0FFH,BIG
+0073 9000BD           36             MOV     DPTR,#TABLE2
+0076 7B00             37             MOV     R3,#0           ;掃描歸零
+                      38     
+                      39     
+0078                  40     MID:
+0078 759000           41             MOV     P1,#0H          ;關閉共陽
+007B E8               42             MOV     A,R0            ;index of table
+007C 93               43             MOVC    A,@A+DPTR
+007D F580             44             MOV     P0,A
+007F 8990             45             MOV     P1,R1
+                      46     
+0081 0B               47             INC     R3
+0082 08               48             INC     R0
+0083 E9               49             MOV     A,R1    ;R1右璇
+0084 03               50             RR      A
+                      51     
+0085 F9               52             MOV     R1,A
+0086 11C7             53             CALL    DELAY
+0088 B805ED           54             CJNE    R0,#5,MID
+008B 7800             55             MOV     R0,#0
+008D 7910             56             MOV     R1,#10H
+008F BBFFE6           57             CJNE    R3,#0FFH,MID
+A51 MACRO ASSEMBLER  LAB5_1                                                               10/28/2017 01:11:39 PAGE     2
+
+0092 9000C2           58             MOV     DPTR,#TABLE3
+0095 7B00             59             MOV     R3,#0           ;掃描歸零
+                      60     
+0097                  61     SMALL:
+0097 759000           62             MOV     P1,#0H          ;關閉共陽
+009A E8               63             MOV     A,R0            ;index of table
+009B 93               64             MOVC    A,@A+DPTR
+009C F580             65             MOV     P0,A
+009E 8990             66             MOV     P1,R1
+                      67     
+00A0 0B               68             INC     R3
+00A1 08               69             INC     R0
+00A2 E9               70             MOV     A,R1    ;R1右璇
+00A3 03               71             RR      A
+                      72     
+00A4 F9               73             MOV     R1,A
+00A5 11C7             74             CALL    DELAY
+00A7 B805ED           75             CJNE    R0,#5,SMALL
+00AA 7800             76             MOV     R0,#0
+00AC 7910             77             MOV     R1,#10H
+00AE BBFFE6           78             CJNE    R3,#0FFH,SMALL
+00B1 9000B8           79             MOV     DPTR,#TABLE
+00B4 7B00             80             MOV     R3,#0           ;掃描歸零
+00B6 80A1             81             JMP     BIG
+                      82     
+                      83     
+00B8                  84     TABLE:
+00B8 12               85             DB      00010010B
+00B9 14               86             DB      00010100B
+00BA 78               87             DB      01111000B
+00BB 14               88             DB      00010100B
+00BC 12               89             DB      00010010B
+                      90     
+00BD                  91     TABLE2:
+                      92     
+00BD 1C               93             DB      00011100B
+00BE 14               94             DB      00010100B
+00BF 7F               95             DB      01111111B
+00C0 14               96             DB      00010100B
+00C1 1C               97             DB      00011100B
+                      98     
+00C2                  99     TABLE3:
+00C2 08              100             DB      00001000B
+00C3 10              101             DB      00010000B
+00C4 7F              102             DB      01111111B
+00C5 12              103             DB      00010010B
+00C6 08              104             DB      00001000B
+                     105     
+00C7                 106     DELAY:
+00C7 7EAA            107             MOV     R6,#0AAH
+00C9                 108     DELAY1:
+00C9 7F2F            109             MOV     R7,#02FH
+00CB                 110     DELAY2:
+00CB DFFE            111             DJNZ    R7,DELAY2
+00CD DEFA            112             DJNZ    R6,DELAY1
+00CF 22              113             RET
+                     114      END
+A51 MACRO ASSEMBLER  LAB5_1                                                               10/28/2017 01:11:39 PAGE     3
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+BIG. . . . . . . .  C ADDR   0059H   A   
+DELAY. . . . . . .  C ADDR   00C7H   A   
+DELAY1 . . . . . .  C ADDR   00C9H   A   
+DELAY2 . . . . . .  C ADDR   00CBH   A   
+MID. . . . . . . .  C ADDR   0078H   A   
+P0 . . . . . . . .  D ADDR   0080H   A   
+P1 . . . . . . . .  D ADDR   0090H   A   
+SMALL. . . . . . .  C ADDR   0097H   A   
+START. . . . . . .  C ADDR   0050H   A   
+TABLE. . . . . . .  C ADDR   00B8H   A   
+TABLE2 . . . . . .  C ADDR   00BDH   A   
+TABLE3 . . . . . .  C ADDR   00C2H   A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S)

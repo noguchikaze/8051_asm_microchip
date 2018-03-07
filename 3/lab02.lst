@@ -1,0 +1,113 @@
+A51 MACRO ASSEMBLER  LAB02                                                                11/18/2017 14:54:09 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.01
+OBJECT MODULE PLACED IN .\lab02.obj
+ASSEMBLER INVOKED BY: C:\Keil\C51\BIN\A51.EXE ..\LAB08\lab02.asm SET(SMALL) DEBUG PRINT(.\lab02.lst) OBJECT(.\lab02.obj)
+                       EP
+
+LOC  OBJ            LINE     SOURCE
+
+0000                   1                     ORG             0000H
+0000 8056              2                     JMP             MAIN
+0050                   3                     ORG             0050H
+                       4     ;====================================================            
+0050                   5     TABLE:
+0050 20333437          6                     DB              " 3470140"
+0054 30313430                
+0058                   7     MAIN:                     
+0058 1179              8                     CALL    DELAY
+005A 900050            9                     MOV             DPTR,#TABLE
+                      10     
+005D 743B             11                     MOV     A,#00111011B    ;2 lines, 8 bit, 5x10
+005F 1186             12                     ACALL   COMMAND
+                      13     
+0061 740E             14                     MOV     A,#00001110B    ;Display DD RAM, cursor, no blinking
+0063 1186             15                     ACALL   COMMAND
+                      16     
+0065 7401             17                     MOV     A,#00000001B    ;clear DD RAM
+0067 1186             18                     ACALL   COMMAND
+0069 1191             19                     ACALL   DELAY40US
+                      20     
+006B 7480             21                     MOV     A,#10000000B    ;Reset AC of DD RAM
+006D 1186             22                     ACALL   COMMAND
+006F 7807             23                     MOV             R0,#07H
+0071                  24     PRE:    
+0071 E8               25                     MOV             A,R0
+0072 93               26                     MOVC    A,@A+DPTR
+0073 119E             27                     ACALL   SDATA
+0075 D8FA             28                     DJNZ    R0,PRE
+0077 80DF             29                     JMP             MAIN
+                      30     ;====================================================   
+0079                  31     DELAY: 
+0079 7D14             32                     MOV             R5,#20
+007B                  33     DELAY1:
+007B 7EFA             34                     MOV             R6,#250
+007D                  35     DELAY2:
+007D 7FFA             36                     MOV             R7,#250
+007F                  37     DELAY3:
+007F DFFE             38                     DJNZ    R7,DELAY3  
+0081 DEFA             39                     DJNZ    R6,DELAY2
+0083 DDF6             40                     DJNZ    R5,DELAY1 
+0085 22               41                     RET     
+                      42     ;====================================================   
+0086                  43     COMMAND:
+0086 F580             44                     MOV             P0,A
+0088 759004           45                     MOV             P1,#00000100B ;E=1 , RW=0 , RS=0
+008B 759000           46                     MOV             P1,#00000000B ;E=0 , RW=0 , RS=0
+008E 1191             47                     ACALL   DELAY40US
+0090 22               48                     RET
+                      49     ;====================================================   
+0091                  50     DELAY40US:
+0091 7D14             51                     MOV             R5,#20
+0093                  52     DELAY40US1:
+0093 7EC8             53                     MOV             R6,#200
+0095                  54     DELAY40US2:
+0095 7FC8             55                     MOV             R7,#200
+0097                  56     DELAY40US3:
+A51 MACRO ASSEMBLER  LAB02                                                                11/18/2017 14:54:09 PAGE     2
+
+0097 DFFE             57                     DJNZ    R7,DELAY40US3  
+0099 DEFA             58                     DJNZ    R6,DELAY40US2
+009B DDF6             59                     DJNZ    R5,DELAY40US1 
+009D 22               60                     RET 
+                      61     ;====================================================   
+009E                  62     SDATA:
+009E F580             63                     MOV             P0,A
+00A0 759005           64                     MOV             P1,#00000101B ;E=1 , RW=0 , RS=1
+00A3 759001           65                     MOV             P1,#00000001B ;E=0 , RW=0 , RS=1
+00A6 759000           66                     MOV             P1,#00000000B ;E=1 , RW=0 , RS=1
+00A9 1191             67                     CALL    DELAY40US
+00AB 22               68                     RET     
+00AC                  69     RRR:                    
+                      70     END
+A51 MACRO ASSEMBLER  LAB02                                                                11/18/2017 14:54:09 PAGE     3
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+COMMAND. . . . . .  C ADDR   0086H   A   
+DELAY. . . . . . .  C ADDR   0079H   A   
+DELAY1 . . . . . .  C ADDR   007BH   A   
+DELAY2 . . . . . .  C ADDR   007DH   A   
+DELAY3 . . . . . .  C ADDR   007FH   A   
+DELAY40US. . . . .  C ADDR   0091H   A   
+DELAY40US1 . . . .  C ADDR   0093H   A   
+DELAY40US2 . . . .  C ADDR   0095H   A   
+DELAY40US3 . . . .  C ADDR   0097H   A   
+MAIN . . . . . . .  C ADDR   0058H   A   
+P0 . . . . . . . .  D ADDR   0080H   A   
+P1 . . . . . . . .  D ADDR   0090H   A   
+PRE. . . . . . . .  C ADDR   0071H   A   
+RRR. . . . . . . .  C ADDR   00ACH   A   
+SDATA. . . . . . .  C ADDR   009EH   A   
+TABLE. . . . . . .  C ADDR   0050H   A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S)

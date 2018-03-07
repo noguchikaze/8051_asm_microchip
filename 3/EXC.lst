@@ -1,0 +1,84 @@
+A51 MACRO ASSEMBLER  EXC                                                                  10/25/2017 16:39:37 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.01
+OBJECT MODULE PLACED IN .\EXC.obj
+ASSEMBLER INVOKED BY: C:\Keil\C51\BIN\A51.EXE ..\4\EXC.ASM SET(SMALL) DEBUG PRINT(.\EXC.lst) OBJECT(.\EXC.obj) EP
+
+LOC  OBJ            LINE     SOURCE
+
+                       1     ;.SYMBOLS ON
+0000                   2     ORG     0000H
+0000 804E              3     JMP     START   ;铬startぃ碞ぃ穦ㄓ?!!!
+0050                   4     ORG     50H
+                       5     
+0050                   6     START:
+0050 7879              7             MOV     R0,#79H;        ;01110000B      X X X N
+0052 79B9              8             MOV     R1,#0B9H        ;10110000B      X X N X
+0054 7AD9              9             MOV     R2,#0D9H        ;11010000B      X N X X
+0056 7BE9             10             MOV     R3,#0E9H        ;11100000B      N X X X
+0058 7D00             11             MOV     R5,#00H         ;苯磞Ω计(5Ω
+005A                  12     MAIN1:
+005A 0D               13             INC     R5
+005B BDAA03           14             CJNE    R5,#0AAH,MAIN2  ;if R5!=5 JMP MAIN2
+005E 7D00             15             MOV     R5,#00H         ;苯磞きΩ R5=0
+0060 08               16             INC     R0      ;计++
+0061                  17     MAIN2:
+0061 8890             18             MOV     P1,R0   ;陪ボ计
+0063 118A             19             CALL    DELAY
+0065 B87A03           20             CJNE    R0,#7AH,SHOW1   ;计ぃ琌10, 碞陪ボ计
+0068 09               21             INC     R1      ;计=10碞秈计
+0069 7870             22             MOV     R0,#70H ;01110000B      ;旧硄计 计0
+006B                  23     SHOW1:
+006B 8990             24             MOV     P1,R1   ;陪ボ计
+006D 118A             25             CALL    DELAY
+006F B9BA03           26             CJNE    R1,#0BAH,SHOW2  ;计ぃ琌10, 陪ボ计((计
+0072 0A               27             INC     R2      ;计秈κ计
+0073 79B0             28             MOV     R1,#0B0H
+0075                  29     SHOW2:
+0075 8A90             30             MOV     P1,R2
+0077 118A             31             CALL    DELAY
+0079 BADA03           32             CJNE    R2,#0DAH,SHOW3  ;κ计琌10杠铬
+007C 0B               33             INC     R3      ;++
+007D 7AD0             34             MOV     R2,#0D0H
+                      35     
+007F                  36     SHOW3:
+007F 8B90             37             MOV     P1,R3
+0081 118A             38             CALL    DELAY
+0083 BBEAD4           39             CJNE    R3,#0EAH,MAIN1  ;ぃ10碞眖繷秨﹍苯磞
+0086 7BE0             40             MOV     R3,#0E0H
+0088 80D0             41             JMP     MAIN1
+                      42     
+008A                  43     DELAY:
+008A 7EAF             44             MOV     R6,#0AFH
+008C                  45     DELAY1:
+008C 7F0F             46             MOV     R7,#0FH
+008E                  47     DELAY2:
+008E DFFE             48             DJNZ    R7,DELAY2
+0090 DEFA             49             DJNZ    R6,DELAY1
+0092 22               50     RET
+                      51     END
+A51 MACRO ASSEMBLER  EXC                                                                  10/25/2017 16:39:37 PAGE     2
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+DELAY. . . . . . .  C ADDR   008AH   A   
+DELAY1 . . . . . .  C ADDR   008CH   A   
+DELAY2 . . . . . .  C ADDR   008EH   A   
+MAIN1. . . . . . .  C ADDR   005AH   A   
+MAIN2. . . . . . .  C ADDR   0061H   A   
+P1 . . . . . . . .  D ADDR   0090H   A   
+SHOW1. . . . . . .  C ADDR   006BH   A   
+SHOW2. . . . . . .  C ADDR   0075H   A   
+SHOW3. . . . . . .  C ADDR   007FH   A   
+START. . . . . . .  C ADDR   0050H   A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S)

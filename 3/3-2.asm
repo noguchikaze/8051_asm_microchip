@@ -1,0 +1,54 @@
+ORG	0000H
+AJMP	MAIN
+ORG	0050H
+
+MAIN:
+
+	MOV	DPTR,#SSTABLE
+LOOP:
+	MOV 	R2,#0H	;R2=counter
+LOOP1:
+
+	MOV	A,R2	;將counter移入A
+	MOVC	A,@A+DPTR	;將表中的數值(base+counter)移入A
+	MOV	P0,A	;將A移入七段顯示器
+	INC	R2	;++R2
+
+;把指撥開關的值存入A
+
+	MOV	R0,P1
+	MOV	A,R0	;指撥開關的值存入A
+	ADD	A,#01H	;將A+1
+
+
+
+;if else
+
+	ACALL	DELAY
+	CJNE	R2,#7H,LOOP1	;if R2!=7, jump to Loop 1
+	AJMP	LOOP
+
+
+
+DELAY:
+	MOV	R5 ,#0FFH
+DELAY1:
+	MOV	R6 ,#0FFH
+DELAY2:
+	MOV	R7 ,A
+DELAY3:
+	DJNZ	R7,DELAY3
+	DJNZ	R6,DELAY2
+	DJNZ	R5,DELAY1
+	RET
+
+SSTABLE:
+	DB	11000000B	;0
+	DB	092H	;5
+	DB	0F9H	;1
+	DB	11000000B	;0
+	DB	0F8H	;7
+	DB	099H	;4
+	DB	0B0H	;3
+
+END

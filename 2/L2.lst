@@ -1,0 +1,41 @@
+A51 MACRO ASSEMBLER  L2                                                                   10/03/2017 19:54:00 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.01
+OBJECT MODULE PLACED IN .\L2.obj
+ASSEMBLER INVOKED BY: C:\Keil\C51\BIN\A51.EXE C:\Users\user\Desktop\L2.ASM SET(SMALL) DEBUG PRINT(.\L2.lst) OBJECT(.\L2.
+                      obj) EP
+
+LOC  OBJ            LINE     SOURCE
+
+                       1     
+0000                   2     ORG     0000H
+0000 0150              3     AJMP    MAIN
+0050                   4     ORG     0050H
+                       5     
+0050                   6     MAIN:
+                       7     
+0050 E580              8             MOV     A,P0
+0052 F4                9             CPL     A
+                      10     
+0053 F590             11                     MOV     P1,A
+                      12             END
+                             
+                             
+A51 MACRO ASSEMBLER  L2                                                                   10/03/2017 19:54:00 PAGE     2
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+MAIN . . . . . . .  C ADDR   0050H   A   
+P0 . . . . . . . .  D ADDR   0080H   A   
+P1 . . . . . . . .  D ADDR   0090H   A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S)

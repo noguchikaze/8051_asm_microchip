@@ -1,0 +1,127 @@
+A51 MACRO ASSEMBLER  THOUGHT                                                              01/15/2018 15:53:56 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.01
+OBJECT MODULE PLACED IN .\thought.obj
+ASSEMBLER INVOKED BY: C:\Keil\C51\BIN\A51.EXE C:\Users\user\Downloads\thought.asm SET(SMALL) DEBUG PRINT(.\thought.lst) 
+                      OBJECT(.\thought.obj) EP
+
+LOC  OBJ            LINE     SOURCE
+
+                       1     ;FRAME
+                       2     ;Try with only one 8051
+                       3     ;By using "INT1" to control the "COUNTER1" running
+                       4     ;INT1 means trigger when the debounce button presssed
+                       5     ;And both the LED and the buzzer runs by "T0"
+                       6     ;TR0 => LED runs => trigger => INT0 => check
+0000                   7     ORG 00H
+0000 8050              8     JMP INIT
+000B                   9     ORG 0BH ;TIMER0中斷
+000B 8070             10     JMP SHIFTING
+0013                  11     ORG 13H ;INT1
+0013 805B             12     JMP TRIGGER
+0050                  13     ORG 50H
+0050 801C             14     JMP MAIN
+                      15     
+  REG                 16     CNTS    EQU R7  ;To determine how many 0.05sec to run
+  0080                17     LED     EQU P0  ;LEDS
+  00A0                18     DISPLAY EQU P2  ;to show the judjment of the result
+  0087                19     LAST EQU P0.7
+                      20     
+0052                  21     INIT:
+                      22     ;設定外部0中斷 TIMER0中斷
+                      23     ;設定IE
+0052 75B800           24       MOV IP,#00000000B  ;External interrupt Priority
+0055 75A886           25       MOV IE,#10000110B  ;EA ET0 EX1
+0058 758901           26       MOV TMOD,#00000001B  ;CT1 ready for the count
+                      27                           ;TIMER0 ready for the shift
+                      28                           ;MODE1
+005B D28A             29       SETB IT1  ;Ngative edge trigger
+005D C28B             30       CLR IE1   ;Clear interrupt flag
+005F C28D             31       CLR TF0
+                      32       ;Setting the timer overflows every 0.05sec
+0061 758C3C           33       MOV TH0,#03CH
+0064 758AB0           34       MOV TL0,#0B0H
+0067 7F02             35       MOV CNTS,#2  ;let the timer overflows for 0.5sec
+0069 7580FE           36       MOV LED,#11111110B
+006C D28C             37       SETB  TR0
+                      38     
+006E                  39     MAIN:
+006E 80FE             40       JMP $
+                      41     ;=========================================
+0070                  42     TRIGGER:
+0070 C28B             43       CLR IE1
+                      44     ;using the first method by checking with the state
+                      45     ;of the pin of last LED
+0072 308704           46       JNB  LAST,ONTONE
+0075                  47     OFFTONE:  ;Is not tapped on the tempo
+0075 75A070           48       MOV DISPLAY,#01110000B  ;show 0 if BAD
+0078 32               49       RETI
+0079                  50     ONTONE: ;IS tapped on the tempo
+0079 75A071           51       MOV DISPLAY,#01110001B  ;show 0 if GOOD
+007C 32               52       RETI
+                      53     ;===========TIMER0 INT======================
+                      54     ;============ manual overload ==============
+007D                  55     SHIFTING:
+007D DF07             56       DJNZ  CNTS,TORET
+007F 7F02             57       MOV  CNTS,#2 ;reload the counts
+A51 MACRO ASSEMBLER  THOUGHT                                                              01/15/2018 15:53:56 PAGE     2
+
+0081 E580             58       MOV A,LED
+0083 23               59       RL  A
+0084 F580             60       MOV LED,A
+0086                  61     TORET:
+0086 758C3C           62       MOV TH0,#03CH
+0089 758AB0           63       MOV TL0,#0B0H
+008C 32               64       RETI
+                      65     ;===========================================
+008D                  66     TABLETONE:
+                      67     ;DO
+                      68     ;RE
+                      69     ;MI
+                      70     ;FA
+                      71     ;SOL
+                      72     ;LA
+                      73     ;SI
+                      74     ;HDO
+008D                  75     TABLELED:
+                      76     
+                      77     END
+A51 MACRO ASSEMBLER  THOUGHT                                                              01/15/2018 15:53:56 PAGE     3
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+CNTS . . . . . . .    REG    R7          
+DISPLAY. . . . . .  D ADDR   00A0H   A   
+IE . . . . . . . .  D ADDR   00A8H   A   
+IE1. . . . . . . .  B ADDR   0088H.3 A   
+INIT . . . . . . .  C ADDR   0052H   A   
+IP . . . . . . . .  D ADDR   00B8H   A   
+IT1. . . . . . . .  B ADDR   0088H.2 A   
+LAST . . . . . . .  B ADDR   0080H.7 A   
+LED. . . . . . . .  D ADDR   0080H   A   
+MAIN . . . . . . .  C ADDR   006EH   A   
+OFFTONE. . . . . .  C ADDR   0075H   A   
+ONTONE . . . . . .  C ADDR   0079H   A   
+P0 . . . . . . . .  D ADDR   0080H   A   
+P2 . . . . . . . .  D ADDR   00A0H   A   
+SHIFTING . . . . .  C ADDR   007DH   A   
+TABLELED . . . . .  C ADDR   008DH   A   
+TABLETONE. . . . .  C ADDR   008DH   A   
+TF0. . . . . . . .  B ADDR   0088H.5 A   
+TH0. . . . . . . .  D ADDR   008CH   A   
+TL0. . . . . . . .  D ADDR   008AH   A   
+TMOD . . . . . . .  D ADDR   0089H   A   
+TORET. . . . . . .  C ADDR   0086H   A   
+TR0. . . . . . . .  B ADDR   0088H.4 A   
+TRIGGER. . . . . .  C ADDR   0070H   A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S)

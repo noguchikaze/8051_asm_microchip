@@ -1,0 +1,71 @@
+A51 MACRO ASSEMBLER  LAB2_1                                                               10/06/2017 13:23:00 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.01
+OBJECT MODULE PLACED IN LAB2-1.OBJ
+ASSEMBLER INVOKED BY: C:\Keil\C51\BIN\A51.EXE LAB2-1.asm SET(SMALL) DEBUG EP
+
+LOC  OBJ            LINE     SOURCE
+
+0000                   1     ORG     00H
+0000 0150              2     AJMP    MAIN
+0050                   3     ORG     50H
+                       4     
+0050                   5     MAIN:
+                       6     
+0050 7480              7             MOV A,#80H
+0052 FB                8             MOV     R3,A
+0053 790F              9             MOV     R1,#0FH
+0055                  10     LOOP:
+                      11     
+0055 EB               12             MOV     A,R3
+0056 A990             13             MOV     R1,P1  ;P0=I/O
+                      14     
+0058 23               15             RL      A          ;SPIN A
+                      16     
+0059 FB               17             MOV     R3,A    ;LET R3 BE THE COPY OF A
+                      18     
+005A F580             19             MOV     P0,A       ;P1=LED
+                      20     
+005C E9               21             MOV     A,R1       ;MOV I/O TO A
+005D 2401             22             ADD     A,#01H
+005F 1163             23             ACALL   DELAY
+0061 0155             24             AJMP    LOOP
+                      25     
+                      26     
+0063                  27     DELAY:
+                      28     
+0063 7DFF             29             MOV R5, #0FFH
+0065                  30     DELAY1:
+0065 7EFF             31             MOV R6,#0FFH
+0067                  32     DELAY2:
+0067 FF               33             MOV R7, A
+0068                  34     DELAY3:
+0068 DFFE             35             DJNZ    R7,DELAY3
+006A DEFB             36             DJNZ    R6,DELAY2
+006C DDF7             37             DJNZ    R5,DELAY1
+                      38     
+006E 22               39             RET
+                      40             END
+A51 MACRO ASSEMBLER  LAB2_1                                                               10/06/2017 13:23:00 PAGE     2
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+DELAY. . . . . . .  C ADDR   0063H   A   
+DELAY1 . . . . . .  C ADDR   0065H   A   
+DELAY2 . . . . . .  C ADDR   0067H   A   
+DELAY3 . . . . . .  C ADDR   0068H   A   
+LOOP . . . . . . .  C ADDR   0055H   A   
+MAIN . . . . . . .  C ADDR   0050H   A   
+P0 . . . . . . . .  D ADDR   0080H   A   
+P1 . . . . . . . .  D ADDR   0090H   A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S)

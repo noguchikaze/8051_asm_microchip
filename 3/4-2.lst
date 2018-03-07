@@ -1,0 +1,78 @@
+A51 MACRO ASSEMBLER  4_2                                                                  10/25/2017 16:37:44 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.01
+OBJECT MODULE PLACED IN .\4-2.obj
+ASSEMBLER INVOKED BY: C:\Keil\C51\BIN\A51.EXE ..\4\4-2.ASM SET(SMALL) DEBUG PRINT(.\4-2.lst) OBJECT(.\4-2.obj) EP
+
+LOC  OBJ            LINE     SOURCE
+
+                       1     ;.SYMBOLS ON
+0000                   2     ORG     0000H
+0000 804E              3     JMP     START   ;阿跳到start以後不就不會回來了?!!!
+0050                   4     ORG     50H
+                       5     
+0050                   6     START:
+0050 7870              7             MOV     R0,#70H ;01110000B      X X X N
+0052 79B6              8             MOV     R1,#0B6H        ;10110000B      X X N X
+0054 7D00              9             MOV     R5,#00H
+                      10     
+0056                  11     MAIN1:
+0056 0D               12             INC             R5
+0057 BDFF10           13             CJNE    R5,#0FFH,MAIN2  ;if R5!=5 JMP MAIN2
+005A 7D00             14             MOV             R5,#00H         ;掃描五次後 R5=0
+005C B8700A           15             CJNE    R0,#70H,OZ      
+005F 7879             16             MOV             R0,#79H
+0061 B9B002           17             CJNE    R1,#0B0H,TENZ
+0064 80EA             18             JMP             START
+0066                  19     TENZ:   ;R1!=0
+0066 19               20             DEC             R1
+0067 8001             21             JMP             MAIN2
+0069                  22     OZ:             ;R0!=0
+0069 18               23             DEC             R0
+                      24     
+006A                  25     MAIN2:
+006A 8890             26             MOV             P1,R0   ;顯示個位數
+006C 1174             27             CALL    DELAY
+                      28     
+006E                  29     SHOW1:
+006E 8990             30             MOV             P1,R1   ;顯示十位數
+0070 1174             31             CALL    DELAY
+0072 80E2             32             JMP             MAIN1
+                      33     
+                      34     
+0074                  35     DELAY:
+0074 7EFF             36             MOV     R6,#0FFH
+0076                  37     DELAY1:
+0076 7F0F             38             MOV     R7,#0FH
+0078                  39     DELAY2:
+                      40     
+0078 DFFE             41             DJNZ    R7,DELAY2
+007A DEFA             42             DJNZ    R6,DELAY1
+007C 22               43     RET
+                      44     
+                      45     END
+A51 MACRO ASSEMBLER  4_2                                                                  10/25/2017 16:37:44 PAGE     2
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+DELAY. . . . . . .  C ADDR   0074H   A   
+DELAY1 . . . . . .  C ADDR   0076H   A   
+DELAY2 . . . . . .  C ADDR   0078H   A   
+MAIN1. . . . . . .  C ADDR   0056H   A   
+MAIN2. . . . . . .  C ADDR   006AH   A   
+OZ . . . . . . . .  C ADDR   0069H   A   
+P1 . . . . . . . .  D ADDR   0090H   A   
+SHOW1. . . . . . .  C ADDR   006EH   A   
+START. . . . . . .  C ADDR   0050H   A   
+TENZ . . . . . . .  C ADDR   0066H   A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S)

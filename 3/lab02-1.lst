@@ -1,0 +1,198 @@
+A51 MACRO ASSEMBLER  LAB02_1                                                              11/18/2017 15:08:31 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.01
+OBJECT MODULE PLACED IN .\lab02-1.obj
+ASSEMBLER INVOKED BY: C:\Keil\C51\BIN\A51.EXE ..\LAB08\lab02-1.asm SET(SMALL) DEBUG PRINT(.\lab02-1.lst) OBJECT(.\lab02-
+                      1.obj) EP
+
+LOC  OBJ            LINE     SOURCE
+
+0000                   1                     ORG             0000H
+0000 804E              2                     JMP             INIT
+0050                   3                     ORG             0050H
+                       4     ;====================================================   
+  0090                 5                     LCD_RS          EQU     P1.0            ;定義LCD接線位置
+  0091                 6                     LCD_RW          EQU     P1.1
+  0092                 7                     LCD_E           EQU     P1.2
+  00A0                 8                     LCD_DATA        EQU     P2
+                       9     ;====================================================   
+0050                  10     INIT:             
+0050 1196             11                     CALL    DELAY
+0052 C291             12                     CLR             LCD_RW
+0054 9000A3           13                     MOV             DPTR,#TABLE
+                      14     
+0057 743B             15                     MOV     A,#00111011B    ;2 lines, 8 bit, 5x10
+0059 11C3             16                     ACALL   COMMAND
+                      17     
+005B 7406             18                     MOV             A,#00000110B    ;AC automatic increment 
+005D 11C3             19                     ACALL   COMMAND
+                      20     
+005F 7401             21                     MOV     A,#00000001B    ;clear DD RAM
+0061 11C3             22                     ACALL   COMMAND
+                      23     
+                      24                     
+0063 1196             25                     ACALL   DELAY
+                      26     
+0065 740E             27                     MOV     A,#00001110B    ;Display DD RAM, cursor, no blinking
+0067 11C3             28                     ACALL   COMMAND
+0069 1196             29                     ACALL   DELAY
+                      30     
+                      31     
+006B 7440             32                     MOV     A,#01000000B    ;Reset AC of CG RAM
+006D 11C3             33                     ACALL   COMMAND
+                      34     
+                      35     
+006F 7900             36                     MOV             R1,#00H
+                      37     ;====================================================   
+0071                  38     WRITETABLE:
+0071 E9               39                     MOV             A,R1
+0072 93               40                     MOVC    A,@A+DPTR
+0073 11CE             41                     ACALL   SDATA
+0075 09               42                     INC             R1
+0076 B920F8           43                     CJNE    R1,#32,WRITETABLE
+                      44     
+0079 7401             45                     MOV     A,#00000001B    ;clear DD RAM
+007B 11C3             46                     ACALL   COMMAND
+                      47     ;====================================================   
+007D                  48     SETDDRAM:
+007D 7480             49                     MOV     A,#10000000B    ;Reset AC of DD RAM
+007F 11C3             50                     ACALL   COMMAND
+                      51     
+0081 7800             52                     MOV             R0,#00H
+                      53     ;====================================================   
+0083                  54     PRE:    
+0083 E8               55                     MOV             A,R0
+0084 11CE             56                     ACALL   SDATA
+0086 08               57                     INC             R0
+A51 MACRO ASSEMBLER  LAB02_1                                                              11/18/2017 15:08:31 PAGE     2
+
+0087 7D14             58                     MOV             R5,#20
+0089 1198             59                     CALL    DELAY1
+008B 7480             60                     MOV     A,#10000000B    ;back
+008D 11C3             61                     ACALL   COMMAND
+008F B804F1           62                     CJNE    R0,#04H,PRE
+0092 7800             63                     MOV             R0,#00H
+0094 80ED             64                     JMP             PRE
+                      65     ;====================================================   
+0096                  66     DELAY: 
+0096 7D0A             67                     MOV             R5,#10
+0098                  68     DELAY1:
+0098 7EFA             69                     MOV             R6,#250
+009A                  70     DELAY2:
+009A 7FFA             71                     MOV             R7,#250
+009C                  72     DELAY3:
+009C DFFE             73                     DJNZ    R7,DELAY3  
+009E DEFA             74                     DJNZ    R6,DELAY2
+00A0 DDF6             75                     DJNZ    R5,DELAY1 
+00A2 22               76                     RET     
+                      77     ;====================================================   
+00A3                  78     TABLE:
+00A3 00               79                     DB              00000B
+00A4 10               80                     DB              10000B
+00A5 08               81                     DB              01000B
+00A6 00               82                     DB              00000B
+00A7 02               83                     DB              00010B
+00A8 01               84                     DB              00001B
+00A9 00               85                     DB              00000B
+00AA 00               86                     DB              00000B
+                      87                     
+                      88                     
+00AB 00               89                     DB              00000B
+00AC 00               90                     DB              00000B
+00AD 00               91                     DB              00000B
+00AE 1B               92                     DB              11011B
+00AF 00               93                     DB              00000B
+00B0 00               94                     DB              00000B
+00B1 00               95                     DB              00000B
+00B2 00               96                     DB              00000B
+                      97     
+00B3 00               98                     DB              00000B
+00B4 01               99                     DB              00001B
+00B5 02              100                     DB              00010B
+00B6 00              101                     DB              00000B
+00B7 08              102                     DB              01000B
+00B8 10              103                     DB              10000B
+00B9 00              104                     DB              00000B
+00BA 00              105                     DB              00000B
+                     106                     
+00BB 04              107                     DB              00100B
+00BC 04              108                     DB              00100B
+00BD 04              109                     DB              00100B
+00BE 00              110                     DB              00000B
+00BF 04              111                     DB              00100B
+00C0 04              112                     DB              00100B
+00C1 04              113                     DB              00100B
+00C2 00              114                     DB              00000B          
+00C3                 115     COMMAND:
+00C3 F5A0            116                     MOV P2,A
+00C5 759004          117                     MOV P1,#00000100B ;E=1 , RW=0 , RS=0
+00C8 759000          118                     MOV P1,#00000000B ;E=0 , RW=0 , RS=0
+00CB 11D9            119                     CALL DELAY40US
+00CD 22              120                     RET
+                     121     ;====================================================   
+00CE                 122     SDATA:
+                     123                     ;SETB   LCD_RS          ;寫資料到LCD副程式
+A51 MACRO ASSEMBLER  LAB02_1                                                              11/18/2017 15:08:31 PAGE     3
+
+                     124                     ;SETB   LCD_E
+                     125                     ;MOV    LCD_DATA,A
+                     126                     ;MOV    R7,#50          ;延遲等訊號穩定
+                     127                     ;DJNZ   R7,$
+                     128                     ;CLR    LCD_E           ;躋nable接腳產生負緣訊號
+                     129                     ;MOV    R7,#60          ;延遲等訊號處裡完畢     
+                     130                     ;DJNZ   R7,$
+                     131                     ;RET
+00CE F5A0            132                     MOV P2,A
+00D0 759005          133                     MOV P1,#00000101B ;E=1 , RW=0 , RS=1
+00D3 759001          134                     MOV P1,#00000001B ;E=0 , RW=0 , RS=1
+00D6 11D9            135                     CALL DELAY40US
+00D8 22              136                     RET
+                     137     ;====================================================   
+00D9                 138     DELAY40US: 
+00D9 7D06            139                     MOV             R5,#6
+00DB                 140     DELAY40US1:
+00DB 7E05            141                     MOV             R6,#5
+00DD                 142     DELAY40US2:
+00DD 7F04            143                     MOV             R7,#4
+00DF                 144     DELAY40US3:
+00DF DFFE            145                     DJNZ    R7,DELAY40US3  
+00E1 DEFA            146                     DJNZ    R6,DELAY40US2
+00E3 DDF6            147                     DJNZ    R5,DELAY40US1 
+00E5 22              148                     RET  
+                     149     END
+A51 MACRO ASSEMBLER  LAB02_1                                                              11/18/2017 15:08:31 PAGE     4
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+COMMAND. . . . . .  C ADDR   00C3H   A   
+DELAY. . . . . . .  C ADDR   0096H   A   
+DELAY1 . . . . . .  C ADDR   0098H   A   
+DELAY2 . . . . . .  C ADDR   009AH   A   
+DELAY3 . . . . . .  C ADDR   009CH   A   
+DELAY40US. . . . .  C ADDR   00D9H   A   
+DELAY40US1 . . . .  C ADDR   00DBH   A   
+DELAY40US2 . . . .  C ADDR   00DDH   A   
+DELAY40US3 . . . .  C ADDR   00DFH   A   
+INIT . . . . . . .  C ADDR   0050H   A   
+LCD_DATA . . . . .  D ADDR   00A0H   A   
+LCD_E. . . . . . .  B ADDR   0090H.2 A   
+LCD_RS . . . . . .  B ADDR   0090H.0 A   
+LCD_RW . . . . . .  B ADDR   0090H.1 A   
+P1 . . . . . . . .  D ADDR   0090H   A   
+P2 . . . . . . . .  D ADDR   00A0H   A   
+PRE. . . . . . . .  C ADDR   0083H   A   
+SDATA. . . . . . .  C ADDR   00CEH   A   
+SETDDRAM . . . . .  C ADDR   007DH   A   
+TABLE. . . . . . .  C ADDR   00A3H   A   
+WRITETABLE . . . .  C ADDR   0071H   A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S)

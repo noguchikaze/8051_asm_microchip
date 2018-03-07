@@ -1,0 +1,171 @@
+A51 MACRO ASSEMBLER  LAB7_2                                                               11/14/2017 20:02:12 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.01
+OBJECT MODULE PLACED IN .\LAB7-2.obj
+ASSEMBLER INVOKED BY: C:\Keil\C51\BIN\A51.EXE C:\Users\user\Desktop\LAB7-2.ASM SET(SMALL) DEBUG PRINT(.\LAB7-2.lst) OBJE
+                      CT(.\LAB7-2.obj) EP
+
+LOC  OBJ            LINE     SOURCE
+
+0000                   1     ORG     00H
+0000 804E              2     JMP     PRE
+0050                   3     ORG     50H
+                       4     
+                       5     ;P1=KEY
+                       6     ;P0
+0050                   7     PRE:
+0050 9000E0            8             MOV     DPTR,#TABLE
+0053                   9     START:
+0053 787F             10             MOV     R0,#01111111B
+0055 7900             11             MOV     R1,#0   ;ROW COUNTER
+0057 7A00             12             MOV     R2,#0   ;INDEX FOR ROW
+0059 7C00             13             MOV     R4,#0   ;掃描七段
+005B                  14     ROW:
+                      15     
+005B 8890             16             MOV     P1,R0           ;CHECK ROW
+005D 11D7             17             CALL    DELAY
+005F E590             18             MOV     A,P1
+0061 540F             19             ANL     A,#00001111B    ;CHECK IF KEY IS PRESSED
+                      20     
+0063 09               21             INC     R1              ;ROW COUNTER++
+                      22     
+0064 B40F1E           23             CJNE    A,#00001111B,COL1
+                      24     
+                      25     ;=========在沒有按鍵按下的情況==============================
+                      26     
+0067 E8               27             MOV     A,R0    ;準備掃描下一列
+0068 03               28             RR      A
+0069 F8               29             MOV     R0,A
+                      30     
+006A EA               31             MOV     A,R2
+006B 2404             32             ADD     A,#4            ;INDEX FOR ROW +4
+006D FA               33             MOV     R2,A
+                      34     
+006E B904EA           35             CJNE    R1,#4,ROW
+                      36     ;==========掃完每一列以後===================================
+0071                  37     SHOW:
+0071 EF               38             MOV     A,R7
+0072 93               39             MOVC    A,@A+DPTR
+0073 F5A0             40             MOV     P2,A
+0075 11D7             41             CALL    DELAY
+0077 BB01D9           42             CJNE    R3,#1,START
+                      43     ;========如果上一個有十位數=======
+007A 0C               44             INC     R4
+007B 75A0E1           45             MOV     P2,#11100001B
+007E 11D7             46             CALL    DELAY
+0080 BC1FEE           47             CJNE    R4,#01FH,SHOW   
+0083 80CE             48             JMP     START   ;從頭開始掃描   
+                      49     
+                      50     ;==========按鍵有被按下的情況==============================
+                      51     ;==========掃描完後,A有四種狀況: 0111 1011 1101 1110==============
+                      52     
+0085                  53     COL1:
+0085 B40E04           54             CJNE    A,#00001110B,COL2
+0088 7B00             55             MOV     R3,#0   ;FOR INDEX
+008A 8015             56             JMP     NADD
+008C                  57     COL2:
+A51 MACRO ASSEMBLER  LAB7_2                                                               11/14/2017 20:02:12 PAGE     2
+
+008C B40D04           58             CJNE    A,#00001101B,COL3
+008F 7B01             59             MOV     R3,#1   ;FOR INDEX
+0091 800E             60             JMP     NADD
+0093                  61     COL3:
+0093 B40B04           62             CJNE    A,#00001011B,COL4
+0096 7B02             63             MOV     R3,#2   ;FOR INDEX
+0098 8007             64             JMP     NADD
+009A                  65     COL4:
+009A B407B6           66             CJNE    A,#00000111B,START
+009D 7B03             67             MOV     R3,#3   ;FOR INDEX
+009F 8000             68             JMP     NADD
+                      69     
+00A1                  70     NADD:
+00A1 EA               71             MOV     A,R2
+00A2 2B               72             ADD     A,R3
+00A3 FF               73             MOV     R7,A    
+                      74     
+                      75     ;==========判斷是否>9===========================
+                      76     
+00A4                  77     J10:
+00A4 B40A04           78             CJNE    A,#10,J11
+00A7 7B01             79             MOV     R3,#1   ;FLAG
+00A9 80A8             80             JMP     START
+00AB                  81     J11:
+00AB B40B04           82             CJNE    A,#11,J12
+00AE 7B01             83             MOV     R3,#1   ;FLAG
+00B0 80A1             84             JMP     START
+00B2                  85     J12:
+00B2 B40C04           86             CJNE    A,#12,J13
+00B5 7B01             87             MOV     R3,#1   ;FLAG
+00B7 809A             88             JMP     START
+00B9                  89     J13:
+00B9 B40D04           90             CJNE    A,#13,J14
+00BC 7B01             91             MOV     R3,#1   ;FLAG
+00BE 8093             92             JMP     START
+00C0                  93     J14:
+00C0 B40E04           94             CJNE    A,#14,J15
+00C3 7B01             95             MOV     R3,#1   ;FLAG
+00C5 808C             96             JMP     START
+00C7                  97     J15:
+00C7 B40F04           98             CJNE    A,#15,JS
+00CA 7B01             99             MOV     R3,#1   ;FLAG
+00CC 8085            100             JMP     START
+00CE                 101     JS:
+00CE 93              102             MOVC    A,@A+DPTR
+00CF F5A0            103             MOV     P2,A
+00D1 11D7            104             CALL    DELAY
+00D3 7B00            105             MOV     R3,#0
+00D5 0153            106             JMP     START   
+                     107     
+                     108     
+00D7                 109     DELAY:
+00D7 7D64            110             MOV     R5,#100
+00D9                 111     DELAY1:
+00D9 7E64            112             MOV     R6,#100
+00DB                 113     DELAY2:
+00DB DEFE            114             DJNZ    R6,DELAY2
+00DD DDFA            115             DJNZ    R5,DELAY1
+00DF 22              116             RET
+                     117     ;===================TABLE=====================
+00E0                 118     TABLE:
+00E0 D0D1D2D3        119             DB      11010000B,11010001B,11010010B,11010011B
+00E4 D4D5D6D7        120             DB      11010100B,11010101B,11010110B,11010111B
+00E8 D8D9D0D1        121             DB      11011000B,11011001B,11010000B,11010001B
+00EC D2D3D4D5        122             DB      11010010B,11010011B,11010100B,11010101B
+*** WARNING #A41 IN 122 (C:\Users\user\Desktop\LAB7-2.ASM, LINE 122): MISSING 'END' STATEMENT
+A51 MACRO ASSEMBLER  LAB7_2                                                               11/14/2017 20:02:12 PAGE     3
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+COL1 . . . . . . .  C ADDR   0085H   A   
+COL2 . . . . . . .  C ADDR   008CH   A   
+COL3 . . . . . . .  C ADDR   0093H   A   
+COL4 . . . . . . .  C ADDR   009AH   A   
+DELAY. . . . . . .  C ADDR   00D7H   A   
+DELAY1 . . . . . .  C ADDR   00D9H   A   
+DELAY2 . . . . . .  C ADDR   00DBH   A   
+J10. . . . . . . .  C ADDR   00A4H   A   
+J11. . . . . . . .  C ADDR   00ABH   A   
+J12. . . . . . . .  C ADDR   00B2H   A   
+J13. . . . . . . .  C ADDR   00B9H   A   
+J14. . . . . . . .  C ADDR   00C0H   A   
+J15. . . . . . . .  C ADDR   00C7H   A   
+JS . . . . . . . .  C ADDR   00CEH   A   
+NADD . . . . . . .  C ADDR   00A1H   A   
+P1 . . . . . . . .  D ADDR   0090H   A   
+P2 . . . . . . . .  D ADDR   00A0H   A   
+PRE. . . . . . . .  C ADDR   0050H   A   
+ROW. . . . . . . .  C ADDR   005BH   A   
+SHOW . . . . . . .  C ADDR   0071H   A   
+START. . . . . . .  C ADDR   0053H   A   
+TABLE. . . . . . .  C ADDR   00E0H   A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  1 WARNING(S), 0 ERROR(S)

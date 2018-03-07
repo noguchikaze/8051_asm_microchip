@@ -1,0 +1,29 @@
+ORG	00H
+JMP		INIT
+;使用polling方式發送+接收
+
+INIT:
+	MOV	TMOD,#00100000B		;Timer 1, Mode2
+	MOV	TL1,#0E6H		;Baud rate = 2400
+	MOV	TH1,#0E6H		;初始值E6H=230
+	ORL		PCON,#80H	;SMOD=1
+	SETB		TR1					;Timer run
+;以上設定好鮑率
+	CLR		SM2
+	SETB		SM1
+	CLR		SM0
+;Serial Mode 1
+	SETB		REN
+
+LOOP:
+	CLR		TI
+	CLR		RI
+	JNB		RI,$			;等待接收資料
+	MOV	A,SBUF	;將接收到的資料移動到A
+	ADD	A,#20H
+	MOV	SBUF,A
+	JNB		TI,$
+	JMP		LOOP
+	
+END
+	
